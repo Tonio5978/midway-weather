@@ -7,5 +7,5 @@
     "contracts:validate": "node scripts/validate-contracts.mjs"
   },
   "engines": {"node": ">=20"},
-  "devDependencies": {"ajv": "8.17.1", "ajv-formats": "3.0.1"}
+  "devDependencies": {"ajv": "8.18.0", "ajv-formats": "3.0.1"}
 }
