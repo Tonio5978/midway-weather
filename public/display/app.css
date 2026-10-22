@@ -1207,3 +1207,60 @@ ol { list-style: none; }
  .dense-layout .forecast-day{padding:2px;gap:0}
  .dense-layout .forecast-hi{font-size:20px}.dense-layout .forecast-pop{font-size:11px}
 }
+
+/* The default kiosk layout needs proportional columns and tile-sized content on
+   laptops. Keep the 1920px kiosk, mobile, and custom admin layouts unchanged. */
+@media (min-width: 1025px) and (max-width: 1919px) {
+    .display:not(.configured-layout) .main {
+        grid-template-columns: minmax(0, 520fr) minmax(0, 836fr) minmax(0, 480fr);
+    }
+    .display:not(.configured-layout) .hero,
+    .display:not(.configured-layout) .metric { container-type: inline-size; }
+    .display:not(.configured-layout) .hero-icon { width: min(150px, 30cqw); height: min(150px, 30cqw); }
+    .display:not(.configured-layout) .hero-temp { font-size: min(148px, 32cqw); }
+    .display:not(.configured-layout) .hero-feels { font-size: min(27px, 7cqw); }
+    .display:not(.configured-layout) .hero-stat { padding: 10px 6px; }
+    .display:not(.configured-layout) .hero-stat dt { font-size: min(16px, 4cqw); }
+    .display:not(.configured-layout) .hero-stat dd { font-size: min(36px, 9cqw); }
+    .display:not(.configured-layout) .metric { padding: 12px; }
+    .display:not(.configured-layout) .metric-head { font-size: min(17px, 10cqw); gap: 6px; }
+    .display:not(.configured-layout) .metric-head .icon { width: 18px; height: 18px; flex: none; }
+    .display:not(.configured-layout) .metric-value { font-size: min(47px, 30cqw); }
+    .display:not(.configured-layout) .metric--wind .metric-value,
+    .display:not(.configured-layout) .metric--rain .metric-value { font-size: min(66px, 28cqw); }
+    .display:not(.configured-layout) .metric--pressure .metric-value { font-size: min(47px, 24cqw); }
+    .display:not(.configured-layout) .metric--pressure .metric-unit { font-size: min(19px, 11cqw); }
+    .display:not(.configured-layout) .metric--humidity,
+    .display:not(.configured-layout) .metric--pressure { padding-block: 8px; }
+    .display:not(.configured-layout) .metric--humidity .metric-foot,
+    .display:not(.configured-layout) .metric--pressure .metric-foot { padding-top: 0; }
+    .display:not(.configured-layout) .metric--humidity .metric-foot .trend,
+    .display:not(.configured-layout) .metric--pressure .metric-foot .trend { margin-top: 3px; }
+    .display:not(.configured-layout) .metric-body { flex-wrap: wrap; gap: 6px; }
+    .display:not(.configured-layout) .metric-foot { flex-wrap: wrap; gap: 6px; }
+    .display:not(.configured-layout) .metric-subs { flex-wrap: wrap; gap: 12px; }
+    .display:not(.configured-layout) .metric-foot .trend { font-size: 11px; gap: 3px; padding: 4px; }
+    .display:not(.configured-layout) .metric-foot .trend-arrow { width: 14px; height: 14px; }
+    .display:not(.configured-layout) .metric-foot .trend-delta { font-size: 12px; }
+    .display:not(.configured-layout) .metric--wind .metric-body {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        align-items: center;
+        min-height: 0;
+        margin-bottom: 12px;
+    }
+    .display:not(.configured-layout) .metric--wind .metric-unit { padding-top: 0; }
+    .display:not(.configured-layout) .wind-copy { margin-top: 0; }
+    .display:not(.configured-layout) .wind-from { font-size: 17px; }
+    .display:not(.configured-layout) .wind-compass {
+        position: relative;
+        top: auto;
+        right: auto;
+        grid-column: 2;
+        grid-row: 1 / 3;
+        width: min(132px, 36cqw);
+        height: min(132px, 36cqw);
+        margin-right: 8px;
+    }
+    .display:not(.configured-layout) .wind-arrow { width: 48px; height: 48px; }
+}
