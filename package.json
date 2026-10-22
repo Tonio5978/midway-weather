@@ -1,0 +1,11 @@
+{
+  "name": "midway-weather-conformance",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "contracts:verify": "node scripts/verify-contracts.mjs",
+    "contracts:validate": "node scripts/validate-contracts.mjs"
+  },
+  "engines": {"node": ">=20"},
+  "devDependencies": {"ajv": "8.17.1", "ajv-formats": "3.0.1"}
+}

@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title desc">
+  <title id="title">Midway Weather</title>
+  <desc id="desc">A warm gold sun on a dark navy and teal background.</desc>
+  <defs>
+    <linearGradient id="background" x1="70" y1="38" x2="450" y2="476" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#021B39"/>
+      <stop offset=".52" stop-color="#043E61"/>
+      <stop offset="1" stop-color="#087578"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="0" cy="0" r="1" gradientTransform="translate(256 256) rotate(90) scale(196)" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFC849" stop-opacity=".18"/>
+      <stop offset="1" stop-color="#FFC849" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="512" height="512" fill="url(#background)"/>
+  <circle cx="256" cy="256" r="196" fill="url(#glow)"/>
+  <g fill="none" stroke="#FFD15C" stroke-width="30" stroke-linecap="round">
+    <path d="M256 91v37"/>
+    <path d="M256 384v37"/>
+    <path d="m139.3 139.3 26.2 26.2"/>
+    <path d="m346.5 346.5 26.2 26.2"/>
+    <path d="M91 256h37"/>
+    <path d="M384 256h37"/>
+    <path d="m139.3 372.7 26.2-26.2"/>
+    <path d="m346.5 165.5 26.2-26.2"/>
+  </g>
+  <circle cx="256" cy="256" r="86" fill="#FFC849"/>
+  <circle cx="229" cy="224" r="22" fill="#FFE291" opacity=".72"/>
+</svg>

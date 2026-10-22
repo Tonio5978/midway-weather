@@ -1,0 +1,15 @@
+{
+  "package": "contracts-weather",
+  "version": "1.0.0",
+  "tag": "contracts-weather/v1.0.0",
+  "source_repository": "https://github.com/thenumber3/midway-platform",
+  "source_commit": "77ef9d9902a5717176b5dbd46c3d7970a6723c30",
+  "archive": "contracts-weather-v1.0.0.tar.gz",
+  "archive_url": "https://github.com/thenumber3/midway-platform/releases/download/contracts-weather%2Fv1.0.0/contracts-weather-v1.0.0.tar.gz",
+  "archive_sha256": "c8ccdaa3530e597f5b26e86a796a475016c6f1e29c673b579c44037c4a08b744",
+  "semantic_validator": {
+    "source_path": "tooling/contract-validation/weather-semantics.mjs",
+    "vendored_path": "contracts/vendor/weather-semantics.mjs",
+    "sha256": "3b8e82cd7f166232c9daeb876942afd59e53fa0e1f14448e95ff56f86332a7dd"
+  }
+}

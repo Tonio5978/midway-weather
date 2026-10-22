@@ -1,0 +1,201 @@
+/* October in Georgia. Burnished copper, rust and gold over deep blue.
+   Static grain and light only: no animation, overlays, filters or map tint.
+   Weather, local light and temperature compose independently; all rules are scoped so Weather remains exactly as before. */
+html[data-seasonal-theme="october-fall"] {
+    --fall-top: #162134;
+    --fall-mid: #503c36;
+    --fall-bottom: #81502e;
+    --fall-surface: 111, 61, 38;
+    --fall-air: 32, 46, 62;
+    --fall-deep: 15, 27, 42;
+    --fall-metal: 230, 158, 82;
+    --fall-light: 215, 114, 49;
+    --fall-accent: #f2b66b;
+    --fall-bright: #ffdc98;
+    --sky-top: var(--fall-top);
+    --sky-mid: var(--fall-mid);
+    --sky-bottom: var(--fall-bottom);
+    --page-glow: rgba(var(--fall-light), 0.28);
+    --header-glow: rgba(var(--fall-light), 0.15);
+    --accent: var(--fall-accent);
+    --accent-bright: var(--fall-bright);
+    --accent-soft: rgba(var(--fall-metal), 0.22);
+    --sparkline-color: var(--fall-bright);
+    --sparkline-fill: rgba(var(--fall-light), 0.28);
+    --hero-glow: rgba(var(--fall-metal), 0.15);
+    --ink: #faf6ef;
+    --ink-dim: #e3d9ca;
+    --ink-faint: #c6bbaa;
+    --tile-top: rgba(var(--fall-surface), 0.97);
+    --tile-bottom: rgba(var(--fall-deep), 0.99);
+    --fall-grain: repeating-linear-gradient(112deg, rgba(255, 221, 164, 0.025) 0 1px, transparent 1px 7px);
+    --tile-bg: var(--fall-grain), linear-gradient(145deg, var(--tile-top), rgba(var(--fall-air), 0.98) 68%, var(--tile-bottom));
+    --tile-bg-soft: linear-gradient(145deg, rgba(var(--fall-surface), 0.86), rgba(var(--fall-deep), 0.94));
+    --tile-bd: rgba(var(--fall-metal), 0.58);
+    --tile-shadow: rgba(3, 12, 24, 0.28);
+    --hero-bg-start: rgba(var(--fall-surface), 0.98);
+    --hero-bg-end: rgba(var(--fall-deep), 0.98);
+    --hero-shadow: rgba(3, 12, 24, 0.34);
+    --primary-bg-start: rgba(var(--fall-surface), 0.97);
+    --primary-bg-end: rgba(var(--fall-deep), 0.98);
+    --forecast-bg: var(--fall-grain), linear-gradient(145deg, rgba(var(--fall-surface), 0.98), rgba(var(--fall-air), 0.98) 75%, rgba(var(--fall-deep), 0.99));
+    --forecast-card-bg: linear-gradient(145deg, rgba(var(--fall-metal), 0.13), rgba(var(--fall-deep), 0.64));
+    --forecast-today-bg: linear-gradient(145deg, rgba(155, 78, 35, 0.74), rgba(var(--fall-deep), 0.86));
+    --forecast-card-bd: rgba(var(--fall-metal), 0.35);
+    --hero-stat-bg: linear-gradient(150deg, rgba(var(--fall-metal), 0.18), rgba(var(--fall-deep), 0.68));
+    --hero-stat-bd: rgba(var(--fall-metal), 0.38);
+    --metric-icon: var(--fall-accent);
+    --weather-icon: var(--fall-bright);
+    --trend-bg: rgba(var(--fall-metal), 0.17);
+    --status-bg: linear-gradient(145deg, rgba(var(--fall-surface), 0.96), rgba(var(--fall-deep), 0.98));
+    --status-bd: rgba(var(--fall-metal), 0.55);
+    --map-frame: rgba(var(--fall-metal), 0.62);
+    /* Semantic rain/health colors are inherited from Weather. */
+}
+
+/* Temperature changes the surfaces and metal; warm October is still warm. */
+html[data-seasonal-theme="october-fall"][data-temperature-mood="frigid"] {
+    --fall-surface: 65, 65, 66;
+    --fall-deep: 9, 20, 35;
+    --fall-metal: 193, 156, 109;
+    --fall-accent: #dfc18e;
+    --fall-bright: #f5dfb5;
+}
+html[data-seasonal-theme="october-fall"][data-temperature-mood="cold"] {
+    --fall-surface: 82, 70, 59;
+    --fall-deep: 12, 27, 45;
+    --fall-metal: 208, 161, 107;
+    --fall-accent: #e7bf86;
+    --fall-bright: #f7dbaa;
+}
+html[data-seasonal-theme="october-fall"][data-temperature-mood="cool"] {
+    --fall-surface: 94, 71, 51;
+    --fall-metal: 217, 160, 94;
+    --fall-accent: #eebe7d;
+    --fall-bright: #ffdda3;
+}
+html[data-seasonal-theme="october-fall"][data-temperature-mood="warm"] {
+    --fall-surface: 125, 67, 35;
+    --fall-metal: 240, 169, 82;
+    --fall-accent: #ffc16f;
+    --fall-bright: #ffe2a0;
+}
+html[data-seasonal-theme="october-fall"][data-temperature-mood="hot"] {
+    --fall-surface: 132, 53, 31;
+    --fall-deep: 32, 27, 38;
+    --fall-metal: 243, 156, 79;
+    --fall-accent: #ffb66d;
+    --fall-bright: #ffdd9a;
+}
+html[data-seasonal-theme="october-fall"][data-temperature-mood="oppressive"] {
+    --fall-surface: 124, 42, 38;
+    --fall-deep: 32, 24, 39;
+    --fall-metal: 239, 143, 77;
+    --fall-accent: #ffad72;
+    --fall-bright: #ffd1a6;
+}
+
+/* Local light is independent of whether it is clear, foggy or wet. */
+html[data-seasonal-theme="october-fall"][data-time-of-day="morning"] {
+    --fall-top: #243045;
+    --fall-mid: #5c4b40;
+    --fall-bottom: #9c713f;
+    --fall-light: 220, 155, 78;
+}
+html[data-seasonal-theme="october-fall"][data-time-of-day="afternoon"] {
+    --fall-top: #253248;
+    --fall-mid: #674735;
+    --fall-bottom: #965424;
+    --fall-light: 235, 158, 60;
+}
+html[data-seasonal-theme="october-fall"][data-time-of-day="evening"] {
+    --fall-top: #221e34;
+    --fall-mid: #683b35;
+    --fall-bottom: #973f25;
+    --fall-light: 235, 113, 50;
+}
+html[data-seasonal-theme="october-fall"][data-time-of-day="night"] {
+    --fall-top: #070f23;
+    --fall-mid: #182436;
+    --fall-bottom: #53382e;
+    --fall-light: 213, 128, 55;
+    --fall-deep: 8, 18, 33;
+    --fall-air: 18, 29, 45;
+    --fall-panel-light: 0.76;
+}
+
+/* Cloud cover desaturates light; wet weather deepens blue, fog softens slate.
+   Temperature tokens still affect these surfaces and all data accents. */
+html[data-seasonal-theme="october-fall"]:is([data-atmosphere="partly-cloudy"], [data-atmosphere="overcast"]) {
+    --fall-mid: #4b4441;
+    --fall-air: 36, 46, 58;
+    --fall-bottom: #6e5340;
+    --fall-light: 179, 137, 94;
+    --page-glow: rgba(var(--fall-light), 0.19);
+}
+html[data-seasonal-theme="october-fall"][data-atmosphere="fog"] {
+    --fall-mid: #525052;
+    --fall-air: 53, 58, 64;
+    --fall-bottom: #807264;
+    --fall-light: 181, 157, 129;
+    --fall-metal: 216, 162, 115;
+    --page-glow: rgba(var(--fall-light), 0.19);
+    --hero-glow: rgba(165, 175, 180, 0.07);
+}
+html[data-seasonal-theme="october-fall"]:is([data-atmosphere="light-rain"], [data-atmosphere="rain"], [data-atmosphere="heavy-rain"]) {
+    --fall-mid: #253849;
+    --fall-air: 22, 40, 57;
+    --fall-bottom: #4c4944;
+    --fall-light: 170, 119, 82;
+    --page-glow: rgba(var(--fall-light), 0.12);
+    --hero-glow: rgba(100, 152, 175, 0.08);
+    --tile-bd: rgba(var(--fall-metal), 0.48);
+}
+html[data-seasonal-theme="october-fall"]:is([data-atmosphere="thunderstorm"], [data-atmosphere="severe-storm"]) {
+    --fall-mid: #252b40;
+    --fall-air: 26, 31, 50;
+    --fall-bottom: #473735;
+    --fall-light: 166, 105, 73;
+    --page-glow: rgba(var(--fall-light), 0.28);
+    --hero-glow: rgba(115, 128, 161, 0.07);
+    --tile-bd: rgba(var(--fall-metal), 0.46);
+}
+html[data-seasonal-theme="october-fall"][data-atmosphere="snow"] {
+    --fall-mid: #334659;
+    --fall-air: 35, 51, 70;
+    --fall-bottom: #606063;
+    --fall-light: 168, 195, 211;
+}
+/* A night horizon stays dark even under cloud, fog, rain or storms. */
+html[data-seasonal-theme="october-fall"][data-time-of-day="night"]:not([data-atmosphere="clear"]) {
+    --sky-mid: color-mix(in srgb, var(--fall-mid) 62%, #081223);
+    --sky-bottom: color-mix(in srgb, var(--fall-bottom) 62%, #111d30);
+}
+/* Surface grain is paint-only; it never covers data, alters geometry or adds
+   a compositing layer. More copper at the top, deep weather blue below. */
+html[data-seasonal-theme="october-fall"] .hero {
+    background: var(--fall-grain),
+        radial-gradient(ellipse at 20% 0%, rgba(var(--fall-metal), 0.15), transparent 56%),
+        linear-gradient(150deg, rgba(var(--fall-surface), var(--fall-panel-light, 0.98)), rgba(var(--fall-air), 0.98) 68%, var(--hero-bg-end));
+}
+html[data-seasonal-theme="october-fall"] :is(.metric--wind, .metric--rain) {
+    background: var(--fall-grain), linear-gradient(145deg, rgba(var(--fall-surface), var(--fall-panel-light, 0.97)), rgba(var(--fall-air), 0.98) 75%, var(--primary-bg-end));
+}
+html[data-seasonal-theme="october-fall"] .hero-stats { border-top-color: rgba(var(--fall-metal), 0.36); }
+html[data-seasonal-theme="october-fall"] .spark-line { stroke-width: 2.8; }
+html[data-seasonal-theme="october-fall"] .forecast-title { color: var(--fall-bright); }
+html[data-seasonal-theme="october-fall"] .forecast-day--today { box-shadow: inset 0 2px 0 rgba(var(--fall-metal), 0.55); }
+
+/* Static, broad light adds atmosphere outside the data surfaces. Fine grain stays in the backgrounds, with no pseudo-element over data or
+   map controls. */
+html[data-seasonal-theme="october-fall"] body {
+    background:
+        var(--fall-grain),
+        radial-gradient(ellipse at 88% 100%, rgba(var(--fall-light), 0.30), transparent 55%),
+        radial-gradient(ellipse at 12% 0%, var(--page-glow), transparent 44%),
+        linear-gradient(155deg, var(--sky-top), var(--sky-mid) 56%, var(--sky-bottom));
+    background-attachment: fixed;
+}
+@media (max-width: 1024px) {
+    html[data-seasonal-theme="october-fall"] body { background-attachment: scroll; }
+}

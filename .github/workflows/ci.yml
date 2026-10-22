@@ -1,0 +1,81 @@
+name: Midway Weather - Validation
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - name: Set up PHP and Composer
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.3"
+          tools: composer:v2
+          extensions: curl, mbstring, sqlite3
+          coverage: none
+
+      - name: Prepare disposable CI environment
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          CI_APP_KEY="base64:$(openssl rand -base64 32)"
+          echo "::add-mask::$CI_APP_KEY"
+
+          {
+            echo "APP_ENV=testing"
+            echo "APP_KEY=$CI_APP_KEY"
+            echo "APP_DEBUG=false"
+            echo "APP_URL=http://localhost"
+            echo "LOG_CHANNEL=stderr"
+            echo "LOG_LEVEL=warning"
+            echo "DB_CONNECTION=sqlite"
+            echo "DB_DATABASE=:memory:"
+            echo "CACHE_STORE=array"
+            echo "SESSION_DRIVER=array"
+            echo "QUEUE_CONNECTION=sync"
+            echo "MAIL_MAILER=array"
+            echo "WEATHER_DEMO_MODE=false"
+          } >> "$GITHUB_ENV"
+
+      - name: Install locked dependencies for validation
+        run: |
+          composer validate --strict
+          composer install \
+            --prefer-dist \
+            --no-interaction \
+            --no-progress
+
+      - name: Set up contract validator
+        uses: actions/setup-node@v5
+        with:
+          node-version: "20"
+          cache: npm
+
+      - name: Install locked conformance dependencies
+        run: npm ci
+
+      - name: Run regression and pinned producer conformance tests
+        run: bash scripts/test.sh
+
+      - name: Validate production source and schedule
+        run: |
+          find app bootstrap config database public resources routes \
+            -type f -name '*.php' -print0 \
+            | xargs -0 -n1 php -l
+
+          php artisan route:list > /dev/null
+          php artisan schedule:list > /dev/null
+
+      - name: Validate production dependencies
+        run: |
+          composer install --no-dev --prefer-dist --no-interaction --no-progress --optimize-autoloader
+          composer check-platform-reqs --no-dev
+          composer audit --locked --no-dev
