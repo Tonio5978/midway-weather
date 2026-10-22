@@ -64,7 +64,7 @@
     <link rel="icon" href="{{ asset('favicon.ico') }}" sizes="any">
     <link rel="apple-touch-icon" href="{{ asset('icons/apple-touch-icon.png') }}" sizes="180x180">
     <link rel="stylesheet" href="{{ asset('vendor/leaflet/leaflet.css') }}?v=2">
-    <link rel="stylesheet" href="{{ asset('display/app.css') }}?v=14">
+    <link rel="stylesheet" href="{{ asset('display/app.css') }}?v=16">
 
     @if ($themeStylesheet = $get('theme_catalog.'.$get('seasonal_theme', 'default').'.stylesheet'))
     <link id="seasonal-theme-stylesheet" rel="stylesheet" href="{{ $themeStylesheet }}">
@@ -81,7 +81,7 @@
     <script id="pwa-client"
             defer
             src="{{ asset('display/pwa.js') }}?v=6"
-            data-service-worker-url="{{ asset('service-worker.js') }}?v=12"
+            data-service-worker-url="{{ asset('service-worker.js') }}?v=14"
             data-preview-mode="{{ $pwaPreview }}"></script>
     @endunless
 </head>
