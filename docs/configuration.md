@@ -4,6 +4,8 @@ Start with the [README quick start](../README.md#try-it-locally). Use `.env.exam
 
 ## Runtime and storage
 
+New users: start with [requirements and compatibility](installation/requirements.md) and the [Windows installation guide](installation/windows.md) for tool installation and daily startup. This page is the shared settings reference.
+
 - PHP 8.3+ and Composer 2. Install the extensions required by Composer plus PDO SQLite and SQLite3; use `composer check-platform-reqs` after installation. Development dependencies may impose stricter PHP requirements than production dependencies: the lock file is authoritative.
 - SQLite is the supported database. With `DB_DATABASE` unset, the database is `database/database.sqlite`. For production, use an absolute path outside the web root and release directories.
 - Copy `.env.example` to `.env` and create the database file **before `composer install`**: Composer package discovery boots the app, which checks for the settings table. Keep its parent directory writable for WAL/SHM files as well as the database itself.

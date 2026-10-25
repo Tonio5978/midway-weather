@@ -6,7 +6,7 @@ Midway Weather is a customizable, self-hosted household weather display built ar
 
 It started as a Raspberry Pi kitchen display: something you can glance at across the room, without opening a weather app or reading a console full of tiny numbers. It grew into a self-hosted application with a responsive phone view and an administration interface for arranging tiles and adding your own personality. The server can run on another machine; a Raspberry Pi is an optional display device, not a hosting requirement.
 
-**[Explore the live dashboard](https://weather.midway-ecosystem.com/)** · **[Try it locally](#try-it-locally)** · **[Documentation](docs/README.md)**
+**[Install on Windows](docs/installation/windows.md)** · **[Try the demo](#try-it-locally)** · **[Requirements and compatibility](docs/installation/requirements.md)** · **[Live dashboard](https://weather.midway-ecosystem.com/)**
 
 ![Live Midway Weather dashboard with October / Fall styling, station observations, radar map, and seven-day forecast](docs/screenshots/dashboard-october.png)
 
@@ -77,6 +77,12 @@ Read the [architecture guide](docs/architecture.md) for collection, persistence,
 
 ## Try it locally
 
+**New to this, or using Windows?** Start with the [step-by-step Windows guide](docs/installation/windows.md). It explains installing the tools, trying demo data, connecting your Ambient station, starting the app each day, and [troubleshooting](docs/installation/windows.md#troubleshooting). You do not need to be a developer.
+
+The **host computer** runs the application and stores weather history. The **display** is a browser on that computer or another reachable device. A Raspberry Pi is an optional display, not required hardware. Read [requirements and tested compatibility](docs/installation/requirements.md) before choosing a host; there is no measured minimum hardware specification.
+
+The commands below are for **macOS/Linux with the prerequisites already installed**, not Windows PowerShell:
+
 You need **PHP 8.3+**, **Composer 2**, the PHP extensions required by the locked dependencies, and **PDO SQLite / SQLite3**. The PHP runtime must also support Laravel's usual extensions, including mbstring, DOM/XML, cURL, and OpenSSL. Composer validates dependency requirements; ensure SQLite support is installed separately.
 
 ```bash
@@ -85,10 +91,11 @@ cd midway-weather
 cp .env.example .env
 touch database/database.sqlite
 composer install
+composer check-platform-reqs
 php artisan key:generate
 php artisan migrate
 php artisan weather:demo --hours=48
-php artisan serve
+php artisan serve --host=127.0.0.1 --port=8000
 ```
 
 Open [localhost:8000](http://localhost:8000/). The demo command writes synthetic station history and forecasts to your **local database**, so you can explore without an Ambient account. It does not connect a real station. Keep demo data separate from a live installation; never run the command against production.
@@ -97,7 +104,9 @@ The database directory, `storage/`, and `bootstrap/cache/` must be writable by t
 
 ### Connect your station
 
-For a live installation, start with a separate, empty SQLite database and configure `.env` using your own values:
+For a live installation, your station must already show current observations in your AmbientWeather.net account. Midway Weather reads that account API, not a USB connection or station-console IP. A WS5000 owner should first verify the existing account upload; this is not a claim of a model-specific hardware test. The [Windows station steps](docs/installation/windows.md#4-connect-your-ambient-weather-station) explain both keys, station selection, and a separate real-data database.
+
+Start with a separate, empty SQLite database and configure `.env` using your own values:
 
 ```dotenv
 AMBIENT_API_KEY=your-ambient-api-key
@@ -144,6 +153,8 @@ Provision your own web server, credentials, scheduler, and backup policy. This p
 
 | Guide | What's inside |
 | --- | --- |
+| [Windows installation](docs/installation/windows.md) | First-time setup, demo, Ambient station connection, startup and troubleshooting |
+| [Requirements and compatibility](docs/installation/requirements.md) | Host versus display, software, hardware limits, tested platforms |
 | [Setup and configuration](docs/configuration.md) | Providers, SQLite, admin setup, maps, settings precedence |
 | [Administration](docs/admin.md) | Layout previews, quips, themes, sources, diagnostics |
 | [Architecture](docs/architecture.md) | Collection lifecycle, storage, API boundaries |
