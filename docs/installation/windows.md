@@ -63,7 +63,7 @@ In PowerShell, download the public source into a new folder under your Windows u
 ```powershell
 New-Item -ItemType Directory -Path "$HOME\Midway" -Force | Out-Null
 Set-Location "$HOME\Midway"
-Invoke-WebRequest -Uri "https://github.com/thenumber3/midway-weather/archive/refs/heads/main.zip" -OutFile "midway-weather.zip"
+Invoke-WebRequest -UseBasicParsing -Uri "https://github.com/thenumber3/midway-weather/archive/refs/heads/main.zip" -OutFile "midway-weather.zip"
 Expand-Archive -Path ".\midway-weather.zip" -DestinationPath "."
 Set-Location ".\midway-weather-main"
 ```
