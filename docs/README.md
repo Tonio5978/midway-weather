@@ -4,6 +4,9 @@ Start with the [project README](../README.md) for features, screenshots, and a l
 
 ## Current guides
 
+- [Windows installation](installation/windows.md): first-time setup, demo, Ambient station connection, daily startup and troubleshooting.
+- [Requirements and compatibility](installation/requirements.md): host/display roles, prerequisites and validation limits.
+
 - [Setup and configuration](configuration.md): runtime, providers, SQLite, admin credentials, maps, settings precedence.
 - [Administration](admin.md): layouts/previews, quips, themes, map framing, sources, diagnostics.
 - [Architecture](architecture.md): collection lifecycle, storage, routes, extension points.
