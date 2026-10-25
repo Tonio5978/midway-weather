@@ -139,7 +139,7 @@
         [$('hero-icon'), document.querySelector('.brand-mark')].forEach(function (svg) {
             if (!svg) return;
             var use = svg.querySelector('use');
-            if (use) use.setAttribute('href', '#' + heroIconId(key));
+            if (use) use.setAttribute('href', '#' + (svg.classList.contains('brand-mark') ? get(model, 'identity.symbol') || heroIconId(key) : heroIconId(key)));
         });
         document.documentElement.setAttribute('data-theme', key);
         document.documentElement.setAttribute('data-atmosphere', get(model, 'theme.atmosphere') || 'clear');
@@ -495,6 +495,32 @@
         setText($('radar-time'), 'Radar unavailable');
     }
 
+    function fitDashboardIdentity() {
+        var text = document.querySelector('.brand-text');
+        if (!text) return;
+        var brand = text.closest('.brand');
+        text.style.removeProperty('--identity-scale');
+        brand.style.removeProperty('transform');
+        if (window.innerWidth <= 1024) return;
+        var height = document.querySelector('.topbar').clientHeight;
+        for (var percent = 95; text.scrollHeight > height && percent >= 45; percent -= 5) {
+            text.style.setProperty('--identity-scale', String(percent / 100));
+        }
+        var offset = document.querySelector('.topbar').getBoundingClientRect().bottom - brand.getBoundingClientRect().bottom;
+        if (offset < 0) brand.style.transform = 'translateY(' + offset + 'px)';
+    }
+
+    function updateDashboardIdentity(model) {
+        var title = get(model, 'identity.title');
+        if (typeof title !== 'string') return;
+        setText($('dashboard-title'), title);
+        document.title = title;
+        var subtitle = $('dashboard-subtitle'), value = get(model, 'identity.subtitle') || '';
+        setText(subtitle, value);
+        if (subtitle) subtitle.hidden = value === '';
+        fitDashboardIdentity();
+    }
+
     var configurationRevision = null;
     var activeSeasonalTheme = null;
     var forecastHome = null;
@@ -570,6 +596,7 @@
         if (!model) return;
         state = model;
         applyConfiguration(model);
+        updateDashboardIdentity(model);
         fitConfiguredLayout();
 
         applyBindings(model);
@@ -648,6 +675,7 @@
         // existing Leaflet instance and re-centers it on the home marker.
         var relayoutTimer = null;
         function relayoutMap() {
+            fitDashboardIdentity();
             fitConfiguredLayout();
             if (!map) return;
             if (relayoutTimer) clearTimeout(relayoutTimer);

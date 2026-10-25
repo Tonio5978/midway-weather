@@ -393,7 +393,15 @@ ol { list-style: none; }
 .brand-mark { width: 72px; height: 72px; color: var(--accent); flex: none; }
 .station-name { font-size: 39px; font-weight: 700; letter-spacing: -0.025em; line-height: 1; }
 .location-name { margin-top: 7px; color: var(--ink-dim); font-size: 20px; line-height: 1; }
-.location-name::after { content: " · Turner Home"; color: var(--ink-dim); }
+/* Identity is text, not generated household branding. Long custom labels wrap
+   inside the existing header; JavaScript fits desktop text to its fixed row. */
+.brand-text { min-width: 0; }
+.station-name, .location-name { overflow-wrap: anywhere; }
+@media (min-width: 1025px) {
+    .brand-text { --identity-scale: 1; }
+    .station-name { font-size: calc(39px * var(--identity-scale)); }
+    .location-name { font-size: calc(20px * var(--identity-scale)); }
+}
 .summary {
     align-self: center;
     color: #fff;

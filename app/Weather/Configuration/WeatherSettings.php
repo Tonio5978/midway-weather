@@ -35,6 +35,22 @@ final class WeatherSettings
         ];
     }
 
+    public static function identityIcons(): array
+    {
+        return [
+            'dynamic' => ['label' => 'Dynamic weather / time of day', 'symbol' => null],
+            'sun' => ['label' => 'Sun', 'symbol' => 'wi-clear-day'],
+            'moon' => ['label' => 'Moon', 'symbol' => 'wi-clear-night'],
+            'partly-cloudy' => ['label' => 'Partly cloudy', 'symbol' => 'wi-partly-cloudy-day'],
+            'cloudy' => ['label' => 'Cloudy', 'symbol' => 'wi-cloudy'],
+            'rain' => ['label' => 'Rain', 'symbol' => 'wi-rain'],
+            'thunderstorm' => ['label' => 'Thunderstorm', 'symbol' => 'wi-thunderstorm'],
+            'snow' => ['label' => 'Snow', 'symbol' => 'wi-snow'],
+            'wind' => ['label' => 'Wind', 'symbol' => 'ui-wind'],
+            'thermometer' => ['label' => 'Thermometer', 'symbol' => 'ui-thermometer'],
+        ];
+    }
+
     public static function contexts(): array
     {
         return array_values(array_unique(array_merge((new ConditionPhraseLibrary)->categories(), ['general', 'clear', 'cloudy', 'rain', 'storms', 'hot', 'cold', 'humid', 'morning', 'afternoon', 'evening', 'night'])));
@@ -45,9 +61,15 @@ final class WeatherSettings
         return config('weather_themes');
     }
 
+    private function identityDefaults(): array
+    {
+        return ['title' => 'Midway Weather', 'subtitle' => (string) config('weather.location_name'), 'icon' => 'dynamic'];
+    }
+
     public function defaults(): array
     {
-        return ['tiles' => array_map(fn ($id) => ['id' => $id, 'enabled' => $id !== 'pool', 'size' => in_array($id, ['wind', 'rain', 'indoor']) ? 'wide' : 'standard'], array_keys(self::tiles())),
+        return ['identity' => $this->identityDefaults(),
+            'tiles' => array_map(fn ($id) => ['id' => $id, 'enabled' => $id !== 'pool', 'size' => in_array($id, ['wind', 'rain', 'indoor']) ? 'wide' : 'standard'], array_keys(self::tiles())),
             'map' => ['location' => (string) config('weather.location_name'), 'zip' => '', 'latitude' => (float) config('weather.latitude'), 'longitude' => (float) config('weather.longitude'), 'zoom' => (int) config('weather.radar.zoom'), 'offset_lat' => 0, 'offset_lon' => 0, 'radar' => (bool) config('weather.radar.enabled')],
             'display' => ['edge_padding' => 22, 'bottom_padding' => 22, 'clock' => true, 'date' => true],
             'theme' => ['selection' => 'automatic', 'schedules' => [['theme' => 'october-fall', ...self::themes()['october-fall']['default_range']]]],
@@ -63,6 +85,7 @@ final class WeatherSettings
         $row = Schema::hasTable('weather_settings') ? DB::table('weather_settings')->find(1) : null;
 
         $values = $row ? json_decode($row->configuration, true, 512, JSON_THROW_ON_ERROR) : $this->defaults();
+        $values['identity'] = array_replace($this->identityDefaults(), $values['identity'] ?? []);
         $registry = self::tiles();
         $values['tiles'] = array_values(array_filter($values['tiles'], fn ($tile) => isset($registry[$tile['id']])));
         $known = array_column($values['tiles'], 'id');

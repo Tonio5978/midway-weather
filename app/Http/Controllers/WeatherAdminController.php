@@ -19,12 +19,20 @@ final class WeatherAdminController
 {
     public function index(WeatherSettings $settings)
     {
-        return view('admin.index', ['settings' => $settings->read(), 'tiles' => WeatherSettings::tiles(), 'contexts' => WeatherSettings::contexts(), 'themes' => WeatherSettings::themes()]);
+        return view('admin.index', ['settings' => $settings->read(), 'tiles' => WeatherSettings::tiles(), 'contexts' => WeatherSettings::contexts(), 'themes' => WeatherSettings::themes(), 'identityIcons' => WeatherSettings::identityIcons()]);
     }
 
     public function validateValues(array $v): array
     {
+        // Older cached admin clients must not erase a saved dashboard identity.
+        if (! array_key_exists('identity', $v)) {
+            $v['identity'] = app(WeatherSettings::class)->read()['values']['identity'];
+        }
         $rules = [
+            'identity' => 'required|array:title,subtitle,icon',
+            'identity.title' => ['required', 'string', 'max:60', 'not_regex:/[\x00-\x1F\x7F]/u'],
+            'identity.subtitle' => ['present', 'nullable', 'string', 'max:120', 'not_regex:/[\x00-\x1F\x7F]/u'],
+            'identity.icon' => ['required', Rule::in(array_keys(WeatherSettings::identityIcons()))],
             'tiles' => 'required|array|size:'.count(WeatherSettings::tiles()), 'tiles.*' => 'required|array:id,enabled,size',
             'tiles.*.id' => ['required', Rule::in(array_keys(WeatherSettings::tiles())), 'distinct'], 'tiles.*.enabled' => 'required|boolean', 'tiles.*.size' => ['required', Rule::in(['standard', 'wide'])],
             'map' => 'required|array:location,zip,latitude,longitude,zoom,offset_lat,offset_lon,radar', 'map.location' => 'required|string|max:100', 'map.zip' => 'nullable|string|regex:/^\d{5}$/', 'map.latitude' => 'required|numeric|between:-85,85', 'map.longitude' => 'required|numeric|between:-180,180', 'map.zoom' => 'required|integer|between:3,14', 'map.offset_lat' => 'required|numeric|between:-10,10', 'map.offset_lon' => 'required|numeric|between:-10,10', 'map.radar' => 'required|boolean',
@@ -44,6 +52,7 @@ final class WeatherAdminController
             throw ValidationException::withMessages(['map' => 'The map center plus offset must remain within valid map coordinates.']);
         }
 
+        $data['identity']['subtitle'] = $data['identity']['subtitle'] ?? '';
         foreach ($data['tiles'] as &$tile) {
             $tile['enabled'] = (bool) $tile['enabled'];
         }
@@ -74,14 +83,14 @@ final class WeatherAdminController
 
     public function save(Request $r, WeatherSettings $s)
     {
-        $r->validate(['revision' => 'required|integer|min:0', 'values' => 'required|array:tiles,map,display,theme,thresholds,quips']);
+        $r->validate(['revision' => 'required|integer|min:0', 'values' => 'required|array:identity,tiles,map,display,theme,thresholds,quips']);
 
         return response()->json($s->save($this->validateValues($r->input('values')), (int) $r->input('revision')));
     }
 
     public function preview(Request $r, WeatherSettings $s, DisplayPresenter $presenter)
     {
-        $r->validate(['values' => 'required|array:tiles,map,display,theme,thresholds,quips']);
+        $r->validate(['values' => 'required|array:identity,tiles,map,display,theme,thresholds,quips']);
         $v = $this->validateValues($r->input('values'));
         $s->useDraft($v);
         try {
