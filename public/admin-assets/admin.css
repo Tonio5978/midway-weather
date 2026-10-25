@@ -4,3 +4,7 @@
 @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto}}
 
 .theme-swatch-fall{background:linear-gradient(145deg,#12243a 15%,#2e4960 55%,#a76b49 85%,#dfb573)}
+
+.identity-icon-preview{display:flex;align-items:center;gap:14px;margin:12px 0;color:#23758a}.identity-icon-preview svg{width:48px;height:48px;flex:none;fill:none;stroke:currentColor;stroke-width:1.8}.identity-icon-preview span{font-size:14px}.field-grid small{font-weight:400;color:#526f7c}
+
+#identity-preview-slot{min-width:0}

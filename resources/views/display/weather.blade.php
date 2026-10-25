@@ -56,7 +56,7 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Midway">
-    <title>{{ $get('meta.station_name', 'Midway Weather') }}</title>
+    <title>{{ $get('identity.title', 'Midway Weather') }}</title>
 
     <link rel="manifest" href="{{ route('pwa.manifest') }}">
     <link rel="icon" href="{{ asset('icons/midway-weather.svg') }}" type="image/svg+xml">
@@ -64,7 +64,7 @@
     <link rel="icon" href="{{ asset('favicon.ico') }}" sizes="any">
     <link rel="apple-touch-icon" href="{{ asset('icons/apple-touch-icon.png') }}" sizes="180x180">
     <link rel="stylesheet" href="{{ asset('vendor/leaflet/leaflet.css') }}?v=2">
-    <link rel="stylesheet" href="{{ asset('display/app.css') }}?v=16">
+    <link rel="stylesheet" href="{{ asset('display/app.css') }}?v=17">
 
     @if ($themeStylesheet = $get('theme_catalog.'.$get('seasonal_theme', 'default').'.stylesheet'))
     <link id="seasonal-theme-stylesheet" rel="stylesheet" href="{{ $themeStylesheet }}">
@@ -76,12 +76,12 @@
     <script id="bootstrap-data" type="application/json">{!! json_encode($display, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_UNESCAPED_UNICODE) !!}</script>
 
     <script defer src="{{ asset('vendor/leaflet/leaflet.js') }}?v=2"></script>
-    <script defer src="{{ asset('display/app.js') }}?v=9"></script>
+    <script defer src="{{ asset('display/app.js') }}?v=10"></script>
     @unless ($adminPreview ?? false)
     <script id="pwa-client"
             defer
             src="{{ asset('display/pwa.js') }}?v=6"
-            data-service-worker-url="{{ asset('service-worker.js') }}?v=14"
+            data-service-worker-url="{{ asset('service-worker.js') }}?v=15"
             data-preview-mode="{{ $pwaPreview }}"></script>
     @endunless
 </head>
@@ -95,10 +95,10 @@
         {{-- ── Top bar: identity, live condition summary, clock, health ──── --}}
         <header class="topbar">
             <div class="brand">
-                <svg class="brand-mark" aria-hidden="true"><use href="#{{ $heroIcon }}"></use></svg>
+                <svg class="brand-mark" aria-hidden="true"><use href="#{{ $get('identity.symbol') ?: $heroIcon }}"></use></svg>
                 <div class="brand-text">
-                    <h1 class="station-name">{{ $get('meta.station_name', 'Midway Weather') }}</h1>
-                    <p class="location-name">{{ $get('meta.location_name') }}</p>
+                    <h1 class="station-name" id="dashboard-title">{{ $get('identity.title', 'Midway Weather') }}</h1>
+                    <p class="location-name" id="dashboard-subtitle" @if($get('identity.subtitle', '') === '') hidden @endif>{{ $get('identity.subtitle', '') }}</p>
                 </div>
             </div>
 

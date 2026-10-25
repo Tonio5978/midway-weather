@@ -25,6 +25,7 @@ The mobile layout stacks the same observations, radar, and forecast for a scroll
 - **The direction things are heading.** Recent-history sparklines and changes in temperature, humidity, wind, and pressure, backed by local observation history.
 - **The week ahead.** A seven-day Open-Meteo forecast with conditions, high/low temperatures, and precipitation probability.
 - **Weather around you.** A Leaflet map with Stadia Maps tiles and an optional latest-frame RainViewer radar overlay. Configure its location, zoom, and framing in admin.
+- **A heading that feels like home.** Set your own dashboard title and subtitle, hide the subtitle, and choose a fixed weather icon or keep the weather/time-of-day icon. This personalizes the display without renaming Midway Weather.
 - **A layout that fits your household.** Enable, disable, reorder, and resize supported tiles, with desktop and mobile draft previews before saving.
 - **A little personality.** Edit the quip library, match messages to weather or time of day, and let the existing rotation keep them from repeating too often.
 - **Seasonal atmosphere.** Choose the standard Weather palette or October / Fall, or schedule recurring annual theme ranges. Colors also respond to conditions, time of day, and temperature.
@@ -40,6 +41,10 @@ Available readings depend on the station's sensors and API payload. Collection r
 The layout editor previews the actual dashboard with current weather data. Change tile order, choose supported sizes, and hide readings you don't need. Drafts leave the live household display alone until you save.
 
 ![Dashboard layout administration with a live-data preview and active tile controls](docs/screenshots/admin-layout.png)
+
+### Personalize the heading
+
+In **Admin → Display settings → Dashboard identity**, enter a title such as “Smith Family Weather” or “Jeff’s Weather,” set your own subtitle (or leave it blank), and choose a weather icon. Preview the draft on desktop or mobile before saving. Saved changes reach open dashboards on their next weather poll. Station metadata and radar location remain separate. See [dashboard identity](docs/admin.md#dashboard-identity) for defaults, limits, and upgrade behavior.
 
 ### Change the atmosphere
 

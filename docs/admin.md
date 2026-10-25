@@ -15,3 +15,20 @@ Tile definitions belong to `WeatherSettings::tiles()`. Metrics declare a Blade r
 Diagnostics show release/source identity, observation freshness, source success/failure state and normalized payloads, configuration revision, active theme, and a once-per-minute scheduler heartbeat. A missing heartbeat is shown as awaiting the first tick; it is not inferred from weather freshness. Saved configuration lives in SQLite and should be included in your backup policy; rolling back application code does not restore saved settings.
 
 Validation: `bash scripts/test.sh`, `./vendor/bin/pint --test --dirty`, JavaScript syntax checks, and desktop/mobile browser checks against a disposable local instance. The existing time-sensitive sparkline baseline remains separately reported by the established test script. Installed PWAs receive the new versioned shell on an online relaunch; no reinstall is needed.
+
+
+## Dashboard identity
+
+Open **Display settings → Dashboard identity** to personalize the public heading:
+
+- **Dashboard title:** required, up to 60 characters. A fresh installation starts with `Midway Weather`; examples include `Smith Family Weather`, `Alaska Weather Station`, and `Jeff's Weather`.
+- **Dashboard subtitle:** up to 120 characters. Fresh installations begin with the configured location as ordinary editable text. Enter any subtitle independently of the station/map settings, or leave it empty to hide the entire line. Once saved, subsequent location changes do not replace this text.
+- **Dashboard icon:** dynamic weather/time of day, sun, moon, partly cloudy, cloudy, rain, thunderstorm, snow, wind, or thermometer. Existing local SVG symbols are reused; no icon uploads or external images are accepted. A fixed heading icon does not change the outdoor reading's condition icon or theme behavior.
+
+The selected icon is shown beside the control. The existing desktop/mobile live-data preview is also available directly in Display settings; edits remain drafts until **Save changes**. Blank subtitles, apostrophes, Unicode and literal markup are handled as text. Titles cannot be empty, text length is enforced on the server, and line breaks/control characters and unknown icon values are rejected. Long labels wrap on phones and fit within the desktop header.
+
+Saving uses the same complete configuration and revision checks as other admin settings. A conflicting save leaves the draft available and asks you to reload; it does not overwrite another session. Open public dashboards receive the saved title, subtitle and icon on the next successful weather poll, normally within a minute. The dashboard browser-tab title follows the personalized heading.
+
+**Upgrade preservation:** run the normal database migrations when adopting this code. The compatibility migration only initializes identity when an existing saved configuration lacks it, or weather data exists without any saved configuration. In the latter case it creates a settings row from the existing environment-based defaults. It snapshots the previous station-based heading, location subtitle and former CSS household suffix, leaving other configuration values intact and advancing the revision. It does not replace existing identity choices, and rollback does not delete personalized settings. Fresh installations receive no household suffix. An upgraded installation can edit or clear the captured subtitle like any other text.
+
+This changes dashboard presentation only. Midway Weather remains the software name: administration/login branding, package name, PWA install identity, provider settings, station metadata, map coordinates and versioned API contracts are unchanged. Identity values are exposed on the public dashboard/display API; do not enter private information you do not want viewers to see.

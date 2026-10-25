@@ -174,7 +174,7 @@ To stop, press **Ctrl+C** in each window. To start again after a reboot, repeat 
 
 ## Optional administration and another display
 
-Normal viewing needs no login. `/admin` has **no default password**: follow [administrator setup](../configuration.md#administrator-setup) if you want to customize tiles, messages, or maps. Password-prompt interaction on a consumer Windows desktop is not yet manually tested.
+Normal viewing needs no login. `/admin` has **no default password**: follow [administrator setup](../configuration.md#administrator-setup) if you want to customize the dashboard title, subtitle, icon, tiles, messages, or maps. The visible heading is configured in **Display settings → Dashboard identity**, separately from the station metadata in `.env`. Password-prompt interaction on a consumer Windows desktop is not yet manually tested.
 
 A different screen only needs a browser; it does not need PHP or Composer. A different computer/phone needs a reachable address for the **host**, not its own `localhost`. Network/firewall setup, HTTPS, and unattended hosting are separate from this same-PC guide; see [self-hosting and operations](../operations.md). Native Windows LAN hosting and firewall dialogs have not been manually validated. Keep this local server off the public Internet.
 

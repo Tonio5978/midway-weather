@@ -52,8 +52,12 @@ class DisplayPresenter
         $freshness = $this->health->observationFreshness($latest, $now);
         $isDaytime = $this->isDaytime($now, $timezone, $todayForecast);
 
+        $configuration = app(WeatherSettings::class)->read();
+        $identity = $configuration['values']['identity'];
+
         return [
-            'configuration' => app(WeatherSettings::class)->read(),
+            'configuration' => $configuration,
+            'identity' => [...$identity, 'symbol' => WeatherSettings::identityIcons()[$identity['icon']]['symbol']],
             'theme_catalog' => array_map(fn ($theme) => ['stylesheet' => ($theme['stylesheet'] ?? null) ? asset($theme['stylesheet']) : null], WeatherSettings::themes()),
             'seasonal_theme' => app(WeatherSettings::class)->activeTheme(app(WeatherSettings::class)->read()['values']),
             'meta' => $this->meta($now, $timezone, $latest),
