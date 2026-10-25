@@ -20,8 +20,8 @@ New users: start with [requirements and compatibility](installation/requirements
 | `AMBIENT_API_KEY` | Grants read access to your Ambient account |
 | `AMBIENT_APPLICATION_KEY` | Identifies the application to Ambient |
 | `AMBIENT_DEVICE_MAC` | Selects the desired station; recommended even with one device |
-| `WEATHER_STATION_NAME` | Dashboard title |
-| `WEATHER_LOCATION_NAME` | Location label and map description |
+| `WEATHER_STATION_NAME` | Station metadata name; personalize the visible heading in Admin → Display settings → Dashboard identity |
+| `WEATHER_LOCATION_NAME` | Initial map/location label and fresh-install subtitle default |
 | `WEATHER_LATITUDE`, `WEATHER_LONGITUDE` | Forecast location and initial map center |
 | `WEATHER_TIMEZONE` | Local clock, daily summaries, forecast dates, theme dates, and cleanup time |
 | `OPEN_METEO_FORECAST_DAYS` | Requested daily forecast horizon; defaults to 7 |
@@ -39,6 +39,8 @@ Credentials, device MAC, and raw provider payloads are not included in the publi
 Additional timing, timeouts/retries, freshness thresholds, trend thresholds, sparkline limits, and phrase rotation defaults are in `config/weather.php`.
 
 ## Saved settings and defaults
+
+Dashboard identity is saved separately from station and map metadata. After it is saved, changing `WEATHER_STATION_NAME` or a map location does not replace its title/subtitle. Edit them in [Dashboard identity](admin.md#dashboard-identity); leave the subtitle blank to hide it.
 
 Once saved in `/admin`, supported layout, map, display, theme, threshold, and quip values live in `weather_settings` and take precedence over their environment defaults. Changing an environment default will not replace a saved admin value. Use the admin interface for those edits.
 
