@@ -1272,3 +1272,7 @@ ol { list-style: none; }
     }
     .display:not(.configured-layout) .wind-arrow { width: 48px; height: 48px; }
 }
+
+/* Darken OSM cartography only; do not recolor precipitation or provider credits. */
+.basemap-osm { filter: grayscale(1) invert(1) brightness(.8) contrast(.9); }
+.map-basemap-status { position: absolute; z-index: 500; top: 42px; left: 9px; max-width: calc(100% - 18px); padding: 5px 8px; border-radius: 7px; color: #fff; background: rgba(0,0,0,.8); font-size: 12px; }

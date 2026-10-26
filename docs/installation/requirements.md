@@ -17,7 +17,7 @@
 | PHP extensions | SQLite via `pdo_sqlite` and `sqlite3`; cURL, mbstring, OpenSSL, fileinfo, and Laravel/locked-package requirements including DOM/XML, ctype, filter, hash, session, tokenizer and PDO. On Windows enable ZIP for package extraction. `composer check-platform-reqs` checks installed package requirements; check SQLite explicitly too. |
 | Writable project/data folders | SQLite and its sidecars, file cache, logs and sessions need write access |
 | Current browser with JavaScript | Renders the dashboard, polls the local app, and loads maps/radar |
-| Internet access | Package downloads during setup; Ambient/Open-Meteo collection on the host; Stadia Maps/RainViewer in the browser; optional ZIP lookup |
+| Internet access | Package downloads during setup; Ambient/Open-Meteo collection on the host; OpenStreetMap (or configured Stadia Maps)/RainViewer in the browser; optional ZIP lookup |
 | Keys for real station data | Your Ambient API key and Application key; station MAC recommended, required for deliberate selection among multiple devices |
 
 SQLite is an application data file, not a separate database service. The default setup needs no Node.js/npm, frontend compilation, Redis, queue worker, Apache, IIS, MySQL, or additional database installer. Git is optional when downloading a source ZIP. Node/npm and the Bash regression script are for contributors/CI, not normal use. Do not use the developer-oriented `composer dev` command as the Windows startup path; use the explicit Artisan commands in the guide.

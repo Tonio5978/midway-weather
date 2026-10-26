@@ -95,7 +95,7 @@ Start the application:
 php artisan serve --host=127.0.0.1 --port=8000
 ```
 
-Leave this window open and visit **[http://127.0.0.1:8000/](http://127.0.0.1:8000/)** in Edge, Chrome, or another current browser. You should see the dashboard with demo readings and a forecast. Maps need separate provider access; a blank map does not mean the PHP installation failed. See [map setup](../configuration.md#maps-and-radar).
+Leave this window open and visit **[http://127.0.0.1:8000/](http://127.0.0.1:8000/)** in Edge, Chrome, or another current browser. You should see the dashboard with demo readings and a forecast. The default base map uses OpenStreetMap without a map account or key; it needs Internet access in the displaying browser. Radar uses RainViewer separately. A map failure does not mean PHP or station collection failed. See [map setup and 401 troubleshooting](../configuration.md#maps-and-radar) if you selected Stadia or tiles fail to load.
 
 `127.0.0.1` and `localhost` mean **this computer**. They will not open this installation from a phone or another computer. The built-in PHP server is for local use, not an Internet-facing hosting service. Do not forward its port on your router.
 

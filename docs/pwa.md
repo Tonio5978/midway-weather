@@ -17,7 +17,7 @@ JavaScript, manifest, Leaflet runtime files, and app icons. It uses network-firs
 responses for those assets and removes old Midway shell caches on activation.
 
 Page navigations, local `/api/` requests, JSON requests, RainViewer resources,
-and Stadia Maps base tiles are never handled by the service worker. This avoids
+and all base-map tiles (OpenStreetMap or Stadia Maps) are never handled by the service worker. This avoids
 showing a cached observation as current and avoids unbounded third-party tile
 caches. A network connection remains required for live weather and radar.
 

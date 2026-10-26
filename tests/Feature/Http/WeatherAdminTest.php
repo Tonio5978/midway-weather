@@ -143,13 +143,26 @@ class WeatherAdminTest extends TestCase
             ->assertSee('"offset_lon":-0.5', false)
             ->assertSee('data-zoom="12"', false)
             ->assertSee('data-radar-enabled="false"', false)
-            ->assertSee('href="https://stadiamaps.com/attribution/"', false)
-            ->assertSee('href="https://openmaptiles.org/"', false)
+            ->assertDontSee('href="https://stadiamaps.com/attribution/"', false)
+            ->assertSee('data-basemap-provider="openstreetmap"', false)
             ->assertSee('href="https://www.openstreetmap.org/copyright"', false)
-            ->assertSee('display/app.js?v=10', false)
+            ->assertSee('display/app.js?v=11', false)
             ->assertDontSee('id="pwa-client"', false);
 
         $this->assertSame($original, $settings->read());
+    }
+
+    public function test_stadia_preview_keeps_provider_configuration_and_private_response_headers(): void
+    {
+        config(['weather.basemap.provider' => 'stadia', 'weather.basemap.stadia_api_key' => 'preview-owner-key']);
+        $settings = app(WeatherSettings::class);
+        $before = $settings->read();
+        $this->admin()->postJson('/admin/preview', ['values' => $before['values']])
+            ->assertOk()
+            ->assertHeader('Cache-Control', 'no-store, private')
+            ->assertSee('data-basemap-provider="stadia"', false)
+            ->assertSee('?api_key=preview-owner-key', false);
+        $this->assertSame($before, $settings->read());
     }
 
     public function test_zip_lookup_safe_payload_and_failure(): void

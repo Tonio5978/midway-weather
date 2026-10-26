@@ -9,7 +9,7 @@ Midway Weather is a standalone Laravel application for one Ambient Weather stati
 3. Each collector records source health. Failures preserve last-good weather data.
 4. `weather:cleanup` rebuilds recent daily aggregates before pruning old detailed observations.
 5. `/` renders from local SQLite data through `DisplayPresenter`; the browser polls `/api/display/weather`, normally every 60 seconds. Browser polling does not collect from Ambient.
-6. The browser loads Stadia Maps base tiles and optional latest-frame RainViewer radar independently. Public map interaction is disabled for a stable display; admin controls set framing.
+6. The browser loads keyless OpenStreetMap base tiles (or configured Stadia Maps) and optional latest-frame RainViewer radar independently. Public map interaction is disabled for a stable display; admin controls set framing.
 
 ```text
 Provider clients → collection services → SQLite

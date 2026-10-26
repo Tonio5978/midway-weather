@@ -41,7 +41,7 @@ Create verified backups before deployment as well as scheduled off-host backups.
 | Weather stops updating | Check cron, PHP path, scheduler heartbeat, subprocess support, permissions, and `storage/logs/` |
 | Environment edits ignored | Clear config cache; saved admin settings take precedence over supported environment defaults |
 | SQLite locked/read-only | Check WAL support, database-directory permissions, competing writers, and scheduler locks |
-| Map is blank | Check browser provider requests, domain authorization, attribution, and connectivity |
+| Map is blank or shows 401 | Check the selected provider and [base-map authentication/troubleshooting](configuration.md#base-map-troubleshooting); keep attribution and normal browser caching |
 | Map loads without radar | Check RainViewer connectivity; base-map fallback is intentional |
 | Admin login unavailable | Configure email and password hash; there is no default login; inspect session storage permissions |
 | PWA install prompt absent | Use HTTPS; install controls depend on browser/platform and are hidden in standalone mode |
