@@ -8,6 +8,10 @@ The bundled GitHub Actions workflow validates the application and its dependenci
 
 Back up SQLite before migrations and plan code rollback and data recovery independently; rolling back code does not restore the database or saved settings.
 
+## Updating your own host
+
+Follow [Updating an existing installation](installation/upgrading.md) for Git or ZIP upgrades, SQLite-aware backups, preserved environment/storage, migrations, verification and recovery. Installation/demo commands are not an update procedure.
+
 ## Collection and scheduling
 
 | Command | Purpose | Schedule |
@@ -36,6 +40,7 @@ Create verified backups before deployment as well as scheduled off-host backups.
 
 | Symptom | Useful next step |
 | --- | --- |
+| Batteries show `—` | Check the [raw battery flags and normalized readings](installation/battery-troubleshooting.md); missing fields stay unknown |
 | No station data | Run `weather:status`, then `weather:collect`; confirm both Ambient keys and the selected device |
 | Stale/missing forecast | Run `weather:forecast`; check coordinates, provider access, and source diagnostics |
 | Weather stops updating | Check cron, PHP path, scheduler heartbeat, subprocess support, permissions, and `storage/logs/` |

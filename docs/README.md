@@ -4,6 +4,9 @@ Start with the [project README](../README.md) for features, screenshots, and a l
 
 ## Current guides
 
+- [Updating an existing installation](installation/upgrading.md): state-preserving Git/ZIP upgrades, backups, verification and recovery.
+- [Battery troubleshooting](installation/battery-troubleshooting.md): Ambient field meanings and a restricted diagnostic for missing readings.
+
 - [Windows installation](installation/windows.md): first-time setup, demo, Ambient station connection, daily startup and troubleshooting.
 - [Requirements and compatibility](installation/requirements.md): host/display roles, prerequisites and validation limits.
 
