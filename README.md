@@ -154,6 +154,10 @@ Serve **only `public/`** through your web server, use HTTPS, set `APP_ENV=produc
 
 Provision your own web server, credentials, scheduler, and backup policy. This public repository includes application validation CI; production deployment remains installation-specific. Read [self-hosting and operations](docs/operations.md) before hosting your own instance.
 
+## Updating your installation
+
+Use the [external upgrade guide](docs/installation/upgrading.md) to back up and update an existing server or ZIP installation while preserving `.env`, SQLite history, and saved dashboard settings. Do not repeat the first-install/demo commands on a live database. For missing battery readings, see [battery troubleshooting](docs/installation/battery-troubleshooting.md).
+
 ## Documentation
 
 | Guide | What's inside |
