@@ -32,7 +32,7 @@ New users: start with [requirements and compatibility](installation/requirements
 | `WEATHER_RADAR_OPACITY` | Overlay opacity |
 | `WEATHER_DEMO_MODE` | Synthetic collection outside production; leave false for real data |
 
-Obtain Ambient keys from your account. Open-Meteo is keyless in this implementation. Check each provider's current terms and quotas for your intended use. Server requests need outbound access to Ambient, Open-Meteo, and the optional US ZIP lookup service. Browser requests need outbound access to Stadia Maps and, for radar, RainViewer.
+Obtain Ambient keys from your account. Open-Meteo is keyless in this implementation. Check each provider's current terms and quotas for your intended use. Server requests need outbound access to Ambient, Open-Meteo, and the optional US ZIP lookup service. Browser requests need outbound access to the selected base-map provider and, for radar, RainViewer.
 
 Credentials, device MAC, and raw provider payloads are not included in the public display model. Location labels and configured map coordinates **are** public. Use approximate coordinates, such as a town center.
 
@@ -90,7 +90,46 @@ A hosted installation can instead provision a hash-only JSON sidecar with `email
 
 ## Maps and radar
 
-Leaflet is bundled locally. The browser requests `alidade_smooth_dark` raster tiles from Stadia Maps; this application sends no Stadia key. Configure provider domain authorization for your own hosted domain as required by your Stadia account. Check localhost support and current provider requirements before relying on maps outside the existing hosted domain. Do not assume the Midway domain's authorization transfers to another host.
+Leaflet is bundled locally. **The default is OpenStreetMap standard raster tiles**, with a dark presentation applied only to the base layer. No map account or key is required for normal, modest household viewing, whether opened on localhost, a LAN address, or a hosted domain. The computer showing the dashboard contacts the map provider directly; it needs Internet access even when the application runs on your local network. Map imagery is not included with demo data.
+
+```dotenv
+WEATHER_BASEMAP_PROVIDER=openstreetmap
+STADIA_MAPS_API_KEY=
+```
+
+Keep the visible OpenStreetMap attribution. The [OSM tile usage policy](https://operations.osmfoundation.org/policies/tiles/) requires normal browser caching and a valid browser `Referer`. Do not disable referrers, bulk-download/prefetch tiles, use offline tile downloads, or proxy tiles anonymously. Midway loads only the displayed base-map area and does not refresh it on weather polling or cache third-party tiles in its service worker. This community service is best-effort, with no SLA; access can be withdrawn. For high-traffic/public signage fleets or guaranteed availability, use an appropriately licensed provider such as Stadia with your own account. Neither provider is an offline solution.
+
+### Optional: Stadia Maps (Alidade Smooth Dark)
+
+**Upgrading an existing Stadia installation:** the default changes to OpenStreetMap when no provider is configured. To retain the original cartography and existing domain authorization, explicitly select Stadia in the host's `.env` before upgrading:
+
+```dotenv
+WEATHER_BASEMAP_PROVIDER=stadia
+STADIA_MAPS_API_KEY=
+```
+
+Then choose the appropriate authentication method from [Stadia's documentation](https://docs.stadiamaps.com/authentication/):
+
+| Address in the displaying browser | Stadia setup |
+| --- | --- |
+| `http://localhost:8000` or `http://127.0.0.1:8000` | Keyless local development is supported, with strict rate limits; browser referrers/origins must reach Stadia |
+| Your own public hostname, such as `https://weather.example.com` | Register that exact domain/subdomain in your Stadia account; no key is needed in Midway |
+| LAN IP, computer name, intranet, or another address without domain authorization | Use the keyless OSM default, or obtain your own Stadia tile key and set `STADIA_MAPS_API_KEY` |
+
+`localhost` means the **displaying computer**. Opening `http://192.168.1.20:8000` on the host itself or on a phone is not localhost development. Changing `APP_URL` alone does not authorize the address in the browser. A PHP server bound to `127.0.0.1` is local-only; hosting for other devices also needs appropriate binding, firewall and web-server security. Never expose the development server to the Internet.
+
+If you choose a key, paste **your own** value into `STADIA_MAPS_API_KEY`. This is a browser tile key: it is deliberately included in dashboard HTML, display JSON, previews, and tile requests. Anyone who can view the dashboard can inspect it. Restrict its scope/usage using Stadia's available controls, monitor quotas, and revoke it if exposed unexpectedly. Never reuse Ambient credentials, use a shared project key, or post the key in an issue. Browser-visible tile authentication is separate from server-only station credentials. Domain authentication is preferable for public websites. Check your account's current licensing and quotas.
+
+After changing `.env`, run `php artisan optimize:clear`, restart the local server/scheduler if running, and reload the dashboard. On a managed host, rebuild its configuration cache through that host's normal release process. Provider selection is host configuration shared by the dashboard and both admin previews; it is not a saved dashboard-setting change.
+
+### Base-map troubleshooting
+
+- **“401 Error, Invalid Authentication” with radar still visible:** the base map and radar are separate. With Stadia selected, confirm the actual browser address, register the correct domain/subdomain or use your own key. The OSM default requires neither. Do not reset the station or database.
+- **Localhost still fails:** inspect a failed tile request in browser Developer Tools → Network. Confirm the host is `tiles.stadiamaps.com` and check its HTTP status, `Origin`, and `Referer`. Privacy extensions, embedded browsers, a restrictive reverse-proxy policy, or an outdated page/service worker can interfere. Midway sets base-tile images to `strict-origin-when-cross-origin`, sending only the real origin; it does not forge headers or relay requests through a public proxy. Private admin pages retain their `no-referrer` policy for other requests, while base-tile images use the explicit origin-only policy, including iframe previews.
+- **403/429, blank tiles, or “Base map unavailable”:** check provider policy/quotas, connectivity, browser extensions and hosting Content Security Policy (`img-src` must allow the selected tile host; Stadia may use retina tiles). Keep normal browser HTTP caching enabled. Avoid repeated reloads when rate-limited. A provider may return an error image, so appearance matters as well as status codes.
+- **Old tiles after changing provider:** run the configuration-clear command above, wait at least one browser polling interval, then reload the page. Installed PWAs should update their shell; reopen or refresh if needed. Do not clear station data.
+
+For an issue report, share the provider choice, browser/OS, whether the address is localhost/LAN/hostname, and the HTTP status. Redact API keys, query strings, private hostnames/IPs, precise coordinates and station identifiers from screenshots or network exports.
 
 RainViewer metadata supplies the latest radar frame. The app refreshes that single frame, rather than animating history. A provider failure can leave the base map without radar. Public pan/zoom is disabled; set zoom and independent map-center offsets under Radar & location. Location coordinates also affect forecast collection; offsets affect only map framing. Keep all attribution visible.
 

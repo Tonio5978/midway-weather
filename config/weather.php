@@ -15,6 +15,13 @@ return [
     |
     */
 
+    // Browser tiles: OSM is keyless; Stadia requires the owner's authorization.
+    'basemap' => [
+        'provider' => env('WEATHER_BASEMAP_PROVIDER', 'openstreetmap'),
+        // This optional tile key is intentionally browser-visible, unlike Ambient keys.
+        'stadia_api_key' => env('STADIA_MAPS_API_KEY', ''),
+    ],
+
     'station_name' => env('WEATHER_STATION_NAME', 'Midway Weather'),
     'location_name' => env('WEATHER_LOCATION_NAME', 'Powder Springs, Georgia'),
     'timezone' => env('WEATHER_TIMEZONE', 'America/New_York'),

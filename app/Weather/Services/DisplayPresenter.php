@@ -159,6 +159,7 @@ class DisplayPresenter
             'timezone' => $timezone,
             'latitude' => (float) config('weather.latitude'),
             'longitude' => (float) config('weather.longitude'),
+            'basemap' => $this->basemap(),
             'map_zoom' => (int) config('weather.radar.zoom'),
             'radar' => [
                 'enabled' => (bool) config('weather.radar.enabled'),
@@ -170,6 +171,27 @@ class DisplayPresenter
             'server_time' => $now->setTimezone($timezone)->toIso8601String(),
             'has_data' => $latest !== null,
             'demo_mode' => (bool) config('weather.demo_mode'),
+        ];
+    }
+
+    /** @return array{provider: string, tile_url: string, max_zoom: int} */
+    private function basemap(): array
+    {
+        if (config('weather.basemap.provider') === 'stadia') {
+            $key = trim((string) config('weather.basemap.stadia_api_key', ''));
+
+            return [
+                'provider' => 'stadia',
+                'tile_url' => 'https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png'
+                    .($key !== '' ? '?api_key='.rawurlencode($key) : ''),
+                'max_zoom' => 20,
+            ];
+        }
+
+        return [
+            'provider' => 'openstreetmap',
+            'tile_url' => 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+            'max_zoom' => 19,
         ];
     }
 

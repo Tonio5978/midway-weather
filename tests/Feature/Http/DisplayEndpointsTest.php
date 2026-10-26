@@ -52,9 +52,9 @@ final class DisplayEndpointsTest extends TestCase
             ->assertOk()
             ->assertSee('href="https://example.test/midway-weather/public/favicon.ico"', false)
             ->assertSee('href="https://example.test/midway-weather/public/vendor/leaflet/leaflet.css?v=2"', false)
-            ->assertSee('href="https://example.test/midway-weather/public/display/app.css?v=17"', false)
+            ->assertSee('href="https://example.test/midway-weather/public/display/app.css?v=18"', false)
             ->assertSee('src="https://example.test/midway-weather/public/vendor/leaflet/leaflet.js?v=2"', false)
-            ->assertSee('src="https://example.test/midway-weather/public/display/app.js?v=10"', false)
+            ->assertSee('src="https://example.test/midway-weather/public/display/app.js?v=11"', false)
             ->assertSee('data-weather-url="https://example.test/midway-weather/public/api/display/weather"', false)
             ->assertSee('data-leaflet-images-url="https://example.test/midway-weather/public/vendor/leaflet/images/"', false);
     }
@@ -108,9 +108,39 @@ final class DisplayEndpointsTest extends TestCase
             ->assertSee('id="map"', false)
             ->assertSee('data-radar-enabled="false"', false)
             ->assertSee('id="radar-time">Map</div>', false)
-            ->assertSee('href="https://stadiamaps.com/attribution/"', false)
-            ->assertSee('href="https://openmaptiles.org/"', false)
+            ->assertDontSee('href="https://stadiamaps.com/attribution/"', false)
+            ->assertSee('data-basemap-provider="openstreetmap"', false)
             ->assertSee('href="https://www.openstreetmap.org/copyright"', false);
+    }
+
+    public function test_default_basemap_is_keyless_and_shared_by_html_and_display_api(): void
+    {
+        config(['weather.basemap.stadia_api_key' => 'unused-owner-key']);
+        $this->get('/')->assertOk()
+            ->assertSee('data-basemap-url="https://tile.openstreetmap.org/{z}/{x}/{y}.png"', false)
+            ->assertSee('OpenStreetMap contributors')
+            ->assertDontSee('unused-owner-key');
+        $this->getJson('/api/display/weather')->assertOk()
+            ->assertJsonPath('meta.basemap.provider', 'openstreetmap')
+            ->assertJsonPath('meta.basemap.max_zoom', 19);
+    }
+
+    public function test_stadia_is_opt_in_and_supports_domain_auth_or_an_owner_tile_key(): void
+    {
+        config(['weather.basemap.provider' => 'stadia', 'weather.basemap.stadia_api_key' => '']);
+        $url = 'https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png';
+        $this->get('/')->assertOk()
+            ->assertSee('data-basemap-provider="stadia"', false)
+            ->assertSee('href="https://stadiamaps.com/attribution/"', false)
+            ->assertSee('href="https://openmaptiles.org/"', false);
+        $this->getJson('/api/display/weather')->assertJsonPath('meta.basemap.tile_url', $url);
+
+        config(['weather.basemap.stadia_api_key' => 'owner-only+tile/key&']);
+        cache()->flush();
+        $this->getJson('/api/display/weather')->assertJsonPath(
+            'meta.basemap.tile_url', $url.'?api_key=owner-only%2Btile%2Fkey%26',
+        );
+        $this->get('/')->assertOk()->assertSee('?api_key=owner-only%2Btile%2Fkey%26', false);
     }
 
     public function test_radar_configuration_has_raspberry_pi_friendly_defaults(): void

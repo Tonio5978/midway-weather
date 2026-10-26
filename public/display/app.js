@@ -334,11 +334,23 @@
         map.createPane('radarPane');
         map.getPane('radarPane').style.zIndex = 250;
 
-        L.tileLayer('https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png', {
-            maxZoom: 20,
-            // Send only the origin for domain auth, including private srcdoc previews.
+        // Only the base pane is darkened; radar colors, marker and attribution stay intact.
+        map.createPane('basemapPane');
+        map.getPane('basemapPane').style.zIndex = 200;
+        if (el.getAttribute('data-basemap-provider') === 'openstreetmap') {
+            map.getPane('basemapPane').classList.add('basemap-osm');
+        }
+        L.tileLayer(el.getAttribute('data-basemap-url'), {
+            pane: 'basemapPane',
+            maxZoom: parseInt(el.getAttribute('data-basemap-max-zoom'), 10),
+            // Real browser origin, including private srcdoc previews. Never spoof it.
             referrerPolicy: 'strict-origin-when-cross-origin',
-            crossOrigin: true
+            crossOrigin: true,
+            // Load the visible area only; no speculative tile buffer or retina doubling.
+            keepBuffer: 0
+        }).on('tileerror', function () {
+            var status = $('basemap-status');
+            if (status) status.hidden = false;
         }).addTo(map);
 
         var icon = L.divIcon({

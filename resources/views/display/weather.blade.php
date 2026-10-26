@@ -64,7 +64,7 @@
     <link rel="icon" href="{{ asset('favicon.ico') }}" sizes="any">
     <link rel="apple-touch-icon" href="{{ asset('icons/apple-touch-icon.png') }}" sizes="180x180">
     <link rel="stylesheet" href="{{ asset('vendor/leaflet/leaflet.css') }}?v=2">
-    <link rel="stylesheet" href="{{ asset('display/app.css') }}?v=17">
+    <link rel="stylesheet" href="{{ asset('display/app.css') }}?v=18">
 
     @if ($themeStylesheet = $get('theme_catalog.'.$get('seasonal_theme', 'default').'.stylesheet'))
     <link id="seasonal-theme-stylesheet" rel="stylesheet" href="{{ $themeStylesheet }}">
@@ -76,12 +76,12 @@
     <script id="bootstrap-data" type="application/json">{!! json_encode($display, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_UNESCAPED_UNICODE) !!}</script>
 
     <script defer src="{{ asset('vendor/leaflet/leaflet.js') }}?v=2"></script>
-    <script defer src="{{ asset('display/app.js') }}?v=10"></script>
+    <script defer src="{{ asset('display/app.js') }}?v=11"></script>
     @unless ($adminPreview ?? false)
     <script id="pwa-client"
             defer
             src="{{ asset('display/pwa.js') }}?v=6"
-            data-service-worker-url="{{ asset('service-worker.js') }}?v=15"
+            data-service-worker-url="{{ asset('service-worker.js') }}?v=16"
             data-preview-mode="{{ $pwaPreview }}"></script>
     @endunless
 </head>
@@ -183,12 +183,15 @@
                 @endforeach
             </section>
 
-            {{-- Right rail: current radar over the shared Stadia Maps base --}}
+            {{-- Right rail: current radar over the configured base map --}}
             <section class="rail" aria-label="Current radar map">
                 <div class="tile map-tile" data-tile="map">
                     <div class="map" id="map"
                          data-lat="{{ $get('meta.latitude') }}"
                          data-lon="{{ $get('meta.longitude') }}"
+                         data-basemap-provider="{{ $get('meta.basemap.provider') }}"
+                         data-basemap-url="{{ $get('meta.basemap.tile_url') }}"
+                         data-basemap-max-zoom="{{ $get('meta.basemap.max_zoom') }}"
                          data-zoom="{{ $get('meta.map_zoom', 8) }}"
                          data-radar-enabled="{{ $get('meta.radar.enabled', true) ? 'true' : 'false' }}"
                          data-radar-metadata-url="{{ $get('meta.radar.metadata_url', 'https://api.rainviewer.com/public/weather-maps.json') }}"
@@ -198,7 +201,8 @@
                          role="img"
                          aria-label="Current radar near {{ $get('meta.location_name') }}"></div>
                     <div class="map-radar-time" id="radar-time">{{ $get('meta.radar.enabled', true) ? 'Radar · Updating…' : 'Map' }}</div>
-                    <div class="map-attrib">© <a href="https://stadiamaps.com/attribution/" target="_blank" rel="noopener noreferrer">Stadia Maps</a> · © <a href="https://openmaptiles.org/" target="_blank" rel="noopener noreferrer">OpenMapTiles</a> · © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap</a> · Radar RainViewer</div>
+                    <div class="map-basemap-status" id="basemap-status" role="status" hidden>Base map unavailable. Check map provider setup.</div>
+                    <div class="map-attrib">@if($get('meta.basemap.provider') === 'stadia')© <a href="https://stadiamaps.com/attribution/" target="_blank" rel="noopener noreferrer">Stadia Maps</a> · © <a href="https://openmaptiles.org/" target="_blank" rel="noopener noreferrer">OpenMapTiles</a> · @endif© <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap contributors</a> · Radar RainViewer</div>
                 </div>
             </section>
         </main>
