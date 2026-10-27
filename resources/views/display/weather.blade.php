@@ -202,7 +202,7 @@
                          aria-label="Current radar near {{ $get('meta.location_name') }}"></div>
                     <div class="map-radar-time" id="radar-time">{{ $get('meta.radar.enabled', true) ? 'Radar · Updating…' : 'Map' }}</div>
                     <div class="map-basemap-status" id="basemap-status" role="status" hidden>Base map unavailable. Check map provider setup.</div>
-                    <a id="mapbox-logo" class="weather-mapbox-logo" href="https://www.mapbox.com/" target="_blank" rel="noopener noreferrer" @if(!$get('meta.basemap.logo')) hidden @endif><img src="{{ asset('vendor/mapbox-logo.svg') }}" width="88" height="23" alt="Mapbox"></a>
+                    <a id="mapbox-logo" class="weather-mapbox-logo" href="https://www.mapbox.com/" target="_blank" rel="noopener noreferrer" @if(!$get('meta.basemap.logo')) hidden @endif><img src="{{ asset('icons/mapbox-logo.svg') }}" width="88" height="23" alt="Mapbox"></a>
                     <div class="map-attrib" id="map-attribution">@foreach($get('meta.basemap.attribution', []) as $credit)<a href="{{ $credit['url'] }}" target="_blank" rel="noopener noreferrer">{{ $credit['label'] }}</a> · @endforeach<span>Radar RainViewer</span></div>
                 </div>
             </section>
