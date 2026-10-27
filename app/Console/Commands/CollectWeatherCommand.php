@@ -35,6 +35,11 @@ class CollectWeatherCommand extends Command
             return self::FAILURE;
         }
 
+        if ($result['skipped'] ?? false) {
+            $this->info('Collection deferred by provider settings or cooldown.');
+
+            return self::SUCCESS;
+        }
         $observation = $result['observation'];
         $this->info(sprintf(
             'Stored observation for %s (%s). Temp: %s°F',

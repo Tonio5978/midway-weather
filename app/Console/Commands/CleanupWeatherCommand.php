@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace App\Console\Commands;
 
+use App\Weather\Providers\PrimaryWeatherStore;
 use App\Weather\Services\DailySummaryService;
 use App\Weather\Services\RetentionService;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 /**
@@ -27,6 +29,12 @@ class CleanupWeatherCommand extends Command
         $retentionDays = max(1, (int) config('weather.retention_days', 10));
         $rebuilt = $summaries->rebuildRecent($retentionDays + 1);
 
+        $primary = app(PrimaryWeatherStore::class)->primaryId();
+        foreach (DB::table('weather_stations')->where('enabled', true)->pluck('id') as $stationId) {
+            if ($stationId !== $primary) {
+                $summaries->rebuildRecent($retentionDays + 1, $stationId);
+            }
+        }
         $result = $retention->prune();
 
         $message = sprintf(

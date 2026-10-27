@@ -32,3 +32,7 @@ Saving uses the same complete configuration and revision checks as other admin s
 **Upgrade preservation:** run the normal database migrations when adopting this code. The compatibility migration only initializes identity when an existing saved configuration lacks it, or weather data exists without any saved configuration. In the latter case it creates a settings row from the existing environment-based defaults. It snapshots the previous station-based heading, location subtitle and former CSS household suffix, leaving other configuration values intact and advancing the revision. It does not replace existing identity choices, and rollback does not delete personalized settings. Fresh installations receive no household suffix. An upgraded installation can edit or clear the captured subtitle like any other text.
 
 This changes dashboard presentation only. Midway Weather remains the software name: administration/login branding, package name, PWA install identity, provider settings, station metadata, map coordinates and versioned API contracts are unchanged. Identity values are exposed on the public dashboard/display API; do not enter private information you do not want viewers to see.
+
+## Data Sources & Providers
+
+See [provider configuration and station discovery](providers.md) for environment-managed and encrypted Admin connections, primary station compatibility, and diagnostics.

@@ -10,6 +10,7 @@ use App\Models\Observation;
 use App\Weather\Configuration\Basemap;
 use App\Weather\Configuration\WeatherSettings;
 use App\Weather\Data\Trend;
+use App\Weather\Providers\PrimaryWeatherStore;
 use App\Weather\Support\AtmosphereModifier;
 use App\Weather\Support\Compass;
 use App\Weather\Support\Sparkline;
@@ -265,7 +266,7 @@ class DisplayPresenter
         $today = CarbonImmutable::now($timezone)->toDateString();
 
         // `date` columns persist as midnight datetimes, so match on the date part.
-        return DailySummary::query()->whereDate('date', $today)->first();
+        return app(PrimaryWeatherStore::class)->summaries()->whereDate('date', $today)->first();
     }
 
     private function todayForecast(string $timezone): ?ForecastDay
@@ -348,7 +349,7 @@ class DisplayPresenter
 
         // Average of the previous days' totals (excluding today) for context.
         $today = CarbonImmutable::now($timezone)->toDateString();
-        $recent = DailySummary::query()
+        $recent = app(PrimaryWeatherStore::class)->summaries()
             ->whereDate('date', '<', $today)
             ->orderByDesc('date')
             ->limit(7)

@@ -6,6 +6,9 @@ namespace App\Weather\Clients;
 
 use App\Weather\Data\ObservationData;
 use App\Weather\Exceptions\WeatherApiException;
+use App\Weather\Providers\Connections;
+use App\Weather\Providers\PollDeferred;
+use App\Weather\Providers\ProviderRequests;
 use Illuminate\Http\Client\Factory as HttpFactory;
 use Illuminate\Http\Client\PendingRequest;
 use Throwable;
@@ -34,39 +37,10 @@ class AmbientWeatherClient
      */
     public function latestObservation(): ObservationData
     {
-        $apiKey = (string) config('weather.ambient.api_key');
-        $applicationKey = (string) config('weather.ambient.application_key');
         $deviceMac = config('weather.ambient.device_mac');
         $deviceMac = is_string($deviceMac) && $deviceMac !== '' ? $deviceMac : null;
-
-        if ($apiKey === '' || $applicationKey === '') {
-            throw WeatherApiException::forSource('Ambient', 'API credentials are not configured.');
-        }
-
-        try {
-            $response = $this->request()->get('/devices', [
-                'apiKey' => $apiKey,
-                'applicationKey' => $applicationKey,
-            ]);
-        } catch (Throwable $e) {
-            // Wrap transport-level errors (timeouts, DNS, connection refused).
-            throw WeatherApiException::forSource('Ambient', $this->safeReason($e));
-        }
-
-        if ($response->status() === 429) {
-            throw WeatherApiException::forSource('Ambient', 'Rate limit exceeded (HTTP 429).');
-        }
-
-        if (! $response->successful()) {
-            throw WeatherApiException::forSource(
-                'Ambient',
-                sprintf('Unexpected HTTP status %d.', $response->status())
-            );
-        }
-
-        $devices = $response->json();
-
-        if (! is_array($devices) || $devices === []) {
+        $devices = $this->devices();
+        if ($devices === []) {
             throw WeatherApiException::forSource('Ambient', 'Response contained no devices.');
         }
 
@@ -90,6 +64,41 @@ class AmbientWeatherClient
         $mac = is_string($device['macAddress'] ?? null) ? $device['macAddress'] : $deviceMac;
 
         return ObservationData::fromAmbient($lastData, $mac);
+    }
+
+    /** Fetch all account stations once; discovery and collection share this request budget. */
+    public function devices(): array
+    {
+        return $this->inventory()['devices'];
+    }
+
+    public function inventory(): array
+    {
+        $connections = app(Connections::class);
+        if (! $connections->enabled('ambient')) {
+            throw new PollDeferred('Ambient collection is disabled.');
+        }
+        $revision = $connections->row('ambient')?->revision ?? 0;
+        $keys = $connections->credentials();
+        if (empty($keys['api_key']) || empty($keys['application_key'])) {
+            throw WeatherApiException::forSource('Ambient', 'API credentials are not configured.');
+        }
+        $response = app(ProviderRequests::class)->run('ambient', $keys, fn () => $this->request()->get('/devices', ['apiKey' => $keys['api_key'], 'applicationKey' => $keys['application_key']]));
+        if ($response->status() === 429) {
+            throw WeatherApiException::forSource('Ambient', 'Rate limit exceeded (HTTP 429).');
+        }
+        if (! $response->successful()) {
+            throw WeatherApiException::forSource('Ambient', sprintf('Unexpected HTTP status %d.', $response->status()));
+        }
+        if (strlen($response->body()) > 1048576) {
+            throw WeatherApiException::forSource('Ambient', 'Device inventory exceeds the supported size.');
+        }
+        $devices = $response->json();
+        if (! is_array($devices) || ! array_is_list($devices) || count($devices) > 64) {
+            throw WeatherApiException::forSource('Ambient', 'Invalid device inventory.');
+        }
+
+        return ['devices' => $devices, 'revision' => $revision];
     }
 
     /**
@@ -133,12 +142,7 @@ class AmbientWeatherClient
             ->acceptJson()
             ->timeout((int) config('weather.ambient.timeout', 10))
             ->connectTimeout((int) config('weather.ambient.connect_timeout', 5))
-            ->retry(
-                (int) config('weather.ambient.retry_times', 2),
-                (int) config('weather.ambient.retry_sleep_ms', 1500),
-                // Do not retry rate-limit responses; back off instead.
-                throw: false,
-            );
+            ->retry(1, 0, throw: false);
     }
 
     /**

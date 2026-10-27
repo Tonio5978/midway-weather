@@ -6,6 +6,7 @@ namespace App\Weather\Services;
 
 use App\Models\DailySummary;
 use App\Models\Observation;
+use App\Weather\Providers\PrimaryWeatherStore;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Collection;
 
@@ -23,14 +24,14 @@ class DailySummaryService
      * Rebuild the summary for a single local date from its observations.
      * Returns null when the day has no observations.
      */
-    public function rebuildForDate(CarbonImmutable $localDate): ?DailySummary
+    public function rebuildForDate(CarbonImmutable $localDate, ?int $stationId = null): ?DailySummary
     {
         $timezone = (string) config('weather.timezone', 'America/New_York');
 
         $startUtc = $localDate->setTimezone($timezone)->startOfDay()->utc();
         $endUtc = $localDate->setTimezone($timezone)->endOfDay()->utc();
 
-        $observations = Observation::query()
+        $observations = app(PrimaryWeatherStore::class)->observations($stationId)
             ->whereBetween('observed_at', [$startUtc, $endUtc])
             ->get();
 
@@ -41,7 +42,13 @@ class DailySummaryService
         $attributes = $this->aggregate($observations);
         $attributes['date'] = $localDate->toDateString();
 
-        return DailySummary::query()->updateOrCreate(
+        $store = app(PrimaryWeatherStore::class);
+        $id = $stationId ?? $store->primaryId();
+        if ($id && $id !== $store->settings()?->legacy_station_id) {
+            $attributes['station_id'] = $id;
+        }
+
+        return $store->summaries($stationId)->updateOrCreate(
             ['date' => $localDate->toDateString()],
             $attributes,
         );
@@ -52,7 +59,7 @@ class DailySummaryService
      *
      * @return Collection<int, DailySummary>
      */
-    public function rebuildRecent(int $days): Collection
+    public function rebuildRecent(int $days, ?int $stationId = null): Collection
     {
         $timezone = (string) config('weather.timezone', 'America/New_York');
         $today = CarbonImmutable::now($timezone)->startOfDay();
@@ -61,7 +68,7 @@ class DailySummaryService
 
         for ($i = 0; $i < $days; $i++) {
             $date = $today->subDays($i);
-            $summary = $this->rebuildForDate($date);
+            $summary = $this->rebuildForDate($date, $stationId);
 
             if ($summary !== null) {
                 $summaries->push($summary);

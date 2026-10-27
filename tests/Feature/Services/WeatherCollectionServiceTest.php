@@ -38,6 +38,8 @@ final class WeatherCollectionServiceTest extends TestCase
 
     private function service(): WeatherCollectionService
     {
+        $this->travel(61)->seconds();
+
         return app(WeatherCollectionService::class);
     }
 

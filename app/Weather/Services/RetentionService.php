@@ -6,6 +6,7 @@ namespace App\Weather\Services;
 
 use App\Models\Observation;
 use Carbon\CarbonImmutable;
+use Illuminate\Support\Facades\DB;
 
 /**
  * Prunes detailed observations older than the configured retention window.
@@ -31,8 +32,11 @@ class RetentionService
             ->where('observed_at', '<', $cutoff)
             ->delete();
 
+        $stationDeleted = DB::table('weather_station_observations')->where('observed_at', '<', $cutoff)->delete();
+
         return [
             'deleted' => $deleted,
+            'station_deleted' => $stationDeleted,
             'cutoff' => $cutoff->toIso8601String(),
             'retention_days' => $retentionDays,
         ];
