@@ -78,7 +78,7 @@ class BasemapSettingsTest extends TestCase
     public function test_preview_uses_unsaved_key_and_provider_without_persisting_or_leaking_to_other_previews(): void
     {
         $before = app(WeatherSettings::class)->read();
-        $this->admin()->postJson('/admin/preview', ['values' => $this->values('mapbox'), 'map_credential' => ['provider' => 'mapbox', 'key' => 'pk.preview-only']])->assertOk()->assertSee('data-basemap-provider="mapbox"', false)->assertSee('dark-v11')->assertSee('pk.preview-only')->assertSee('Improve this map')->assertSee('vendor/mapbox-logo.svg')->assertHeader('Cache-Control', 'no-store, private');
+        $this->admin()->postJson('/admin/preview', ['values' => $this->values('mapbox'), 'map_credential' => ['provider' => 'mapbox', 'key' => 'pk.preview-only']])->assertOk()->assertSee('data-basemap-provider="mapbox"', false)->assertSee('dark-v11')->assertSee('pk.preview-only')->assertSee('Improve this map')->assertSee('icons/mapbox-logo.svg')->assertHeader('Cache-Control', 'no-store, private');
         $this->assertSame($before, app(WeatherSettings::class)->read());
         $this->assertDatabaseCount('weather_map_credentials', 0);
         $this->postJson('/admin/preview', ['values' => $before['values']])->assertOk()->assertDontSee('pk.preview-only')->assertSee('data-basemap-provider="openstreetmap"', false);

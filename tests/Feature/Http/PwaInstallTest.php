@@ -147,7 +147,7 @@ final class PwaInstallTest extends TestCase
         $script = file_get_contents(public_path('service-worker.js'));
 
         $this->assertIsString($script);
-        $this->assertStringContainsString("var CACHE_NAME = 'midway-shell-v18';", $script);
+        $this->assertStringContainsString("var CACHE_NAME = 'midway-shell-v19';", $script);
         $this->assertStringContainsString('Promise.all(SHELL_URLS.map(function (url)', $script);
         $this->assertStringContainsString('return cache.add(url).catch(function ()', $script);
         $this->assertStringNotContainsString('cache.addAll(', $script);
