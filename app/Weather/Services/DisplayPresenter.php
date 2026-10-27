@@ -10,6 +10,7 @@ use App\Models\Observation;
 use App\Weather\Configuration\Basemap;
 use App\Weather\Configuration\WeatherSettings;
 use App\Weather\Data\Trend;
+use App\Weather\Presentation\SensorTiles;
 use App\Weather\Providers\PrimaryWeatherStore;
 use App\Weather\Support\AtmosphereModifier;
 use App\Weather\Support\Compass;
@@ -59,6 +60,7 @@ class DisplayPresenter
 
         return [
             'configuration' => $configuration,
+            'sensor_tiles' => app(SensorTiles::class)->published($configuration['values']),
             'identity' => [...$identity, 'symbol' => WeatherSettings::identityIcons()[$identity['icon']]['symbol']],
             'theme_catalog' => array_map(fn ($theme) => ['stylesheet' => ($theme['stylesheet'] ?? null) ? asset($theme['stylesheet']) : null], WeatherSettings::themes()),
             'seasonal_theme' => app(WeatherSettings::class)->activeTheme(app(WeatherSettings::class)->read()['values']),

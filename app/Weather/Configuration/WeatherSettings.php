@@ -2,6 +2,7 @@
 
 namespace App\Weather\Configuration;
 
+use App\Weather\Presentation\SensorTiles;
 use App\Weather\Support\ConditionPhraseLibrary;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
@@ -19,7 +20,7 @@ final class WeatherSettings
 
     public static function tiles(): array
     {
-        return [
+        return array_replace([
             'outdoor' => ['label' => 'Outdoor conditions', 'sizes' => ['standard', 'wide'], 'region' => 'main'],
             'wind' => ['view' => 'display.tiles.wind', 'label' => 'Wind', 'sizes' => ['standard', 'wide'], 'region' => 'metrics'],
             'rain' => ['view' => 'display.tiles.rain', 'label' => 'Rain', 'sizes' => ['standard', 'wide'], 'region' => 'metrics'],
@@ -31,8 +32,8 @@ final class WeatherSettings
             'battery' => ['view' => 'display.tiles.battery', 'label' => 'Station batteries', 'sizes' => ['standard'], 'region' => 'metrics'],
             'map' => ['label' => 'Radar map', 'sizes' => ['standard', 'wide'], 'region' => 'main'],
             'forecast' => ['label' => 'Forecast', 'sizes' => ['standard'], 'region' => 'forecast'],
-            'pool' => ['view' => 'display.tiles.pool', 'label' => 'Pool temperature', 'sizes' => ['standard'], 'region' => 'metrics', 'integration' => 'Awaiting a pool sensor integration'],
-        ];
+            'pool' => ['view' => 'display.tiles.sensor', 'label' => 'Pool temperature', 'sizes' => ['standard', 'wide'], 'region' => 'metrics', 'integration' => 'Select a station and temperature measurement'],
+        ], app(SensorTiles::class)->definitions());
     }
 
     public static function identityIcons(): array
@@ -70,7 +71,7 @@ final class WeatherSettings
     {
         return ['identity' => $this->identityDefaults(),
             'basemap' => ['provider' => 'environment', 'authentication' => 'domain'],
-            'tiles' => array_map(fn ($id) => ['id' => $id, 'enabled' => $id !== 'pool', 'size' => in_array($id, ['wind', 'rain', 'indoor']) ? 'wide' : 'standard'], array_keys(self::tiles())),
+            'tiles' => array_map(fn ($id) => ['id' => $id, 'enabled' => $id !== 'pool' && ! str_starts_with($id, 'sensor-'), 'size' => in_array($id, ['wind', 'rain', 'indoor']) ? 'wide' : 'standard'], array_keys(self::tiles())),
             'map' => ['location' => (string) config('weather.location_name'), 'zip' => '', 'latitude' => (float) config('weather.latitude'), 'longitude' => (float) config('weather.longitude'), 'zoom' => (int) config('weather.radar.zoom'), 'offset_lat' => 0, 'offset_lon' => 0, 'radar' => (bool) config('weather.radar.enabled')],
             'display' => ['edge_padding' => 22, 'bottom_padding' => 22, 'clock' => true, 'date' => true],
             'theme' => ['selection' => 'automatic', 'schedules' => [['theme' => 'october-fall', ...self::themes()['october-fall']['default_range']]]],

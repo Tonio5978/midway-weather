@@ -146,7 +146,7 @@ class WeatherAdminTest extends TestCase
             ->assertDontSee('href="https://stadiamaps.com/attribution/"', false)
             ->assertSee('data-basemap-provider="openstreetmap"', false)
             ->assertSee('href="https://www.openstreetmap.org/copyright"', false)
-            ->assertSee('display/app.js?v=12', false)
+            ->assertSee('display/app.js?v=13', false)
             ->assertDontSee('id="pwa-client"', false);
 
         $this->assertSame($original, $settings->read());

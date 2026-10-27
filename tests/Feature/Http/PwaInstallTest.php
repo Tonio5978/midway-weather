@@ -82,10 +82,10 @@ final class PwaInstallTest extends TestCase
             ->assertOk()
             ->assertSee('vendor/leaflet/leaflet.css?v=2', false)
             ->assertSee('vendor/leaflet/leaflet.js?v=2', false)
-            ->assertSee('display/app.css?v=19', false)
-            ->assertSee('display/app.js?v=12', false)
+            ->assertSee('display/app.css?v=20', false)
+            ->assertSee('display/app.js?v=13', false)
             ->assertSee('display/pwa.js?v=6', false)
-            ->assertSee('service-worker.js?v=16', false);
+            ->assertSee('service-worker.js?v=17', false);
     }
 
     public function test_required_icon_files_are_present(): void
@@ -147,7 +147,7 @@ final class PwaInstallTest extends TestCase
         $script = file_get_contents(public_path('service-worker.js'));
 
         $this->assertIsString($script);
-        $this->assertStringContainsString("var CACHE_NAME = 'midway-shell-v19';", $script);
+        $this->assertStringContainsString("var CACHE_NAME = 'midway-shell-v20';", $script);
         $this->assertStringContainsString('Promise.all(SHELL_URLS.map(function (url)', $script);
         $this->assertStringContainsString('return cache.add(url).catch(function ()', $script);
         $this->assertStringNotContainsString('cache.addAll(', $script);

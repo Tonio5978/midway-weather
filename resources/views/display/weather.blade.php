@@ -64,7 +64,7 @@
     <link rel="icon" href="{{ asset('favicon.ico') }}" sizes="any">
     <link rel="apple-touch-icon" href="{{ asset('icons/apple-touch-icon.png') }}" sizes="180x180">
     <link rel="stylesheet" href="{{ asset('vendor/leaflet/leaflet.css') }}?v=2">
-    <link rel="stylesheet" href="{{ asset('display/app.css') }}?v=19">
+    <link rel="stylesheet" href="{{ asset('display/app.css') }}?v=20">
 
     @if ($themeStylesheet = $get('theme_catalog.'.$get('seasonal_theme', 'default').'.stylesheet'))
     <link id="seasonal-theme-stylesheet" rel="stylesheet" href="{{ $themeStylesheet }}">
@@ -76,12 +76,12 @@
     <script id="bootstrap-data" type="application/json">{!! json_encode($display, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_UNESCAPED_UNICODE) !!}</script>
 
     <script defer src="{{ asset('vendor/leaflet/leaflet.js') }}?v=2"></script>
-    <script defer src="{{ asset('display/app.js') }}?v=12"></script>
+    <script defer src="{{ asset('display/app.js') }}?v=13"></script>
     @unless ($adminPreview ?? false)
     <script id="pwa-client"
             defer
             src="{{ asset('display/pwa.js') }}?v=6"
-            data-service-worker-url="{{ asset('service-worker.js') }}?v=16"
+            data-service-worker-url="{{ asset('service-worker.js') }}?v=17"
             data-preview-mode="{{ $pwaPreview }}"></script>
     @endunless
 </head>
