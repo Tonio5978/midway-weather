@@ -48,7 +48,7 @@ final class DisplayPresenterTest extends TestCase
         $vm = $this->presenter()->present($now);
 
         $this->assertSame(
-            ['configuration', 'identity', 'theme_catalog', 'seasonal_theme', 'meta', 'observation', 'trends', 'summary', 'sparklines', 'rain', 'forecast', 'health', 'theme'],
+            ['configuration', 'sensor_tiles', 'identity', 'theme_catalog', 'seasonal_theme', 'meta', 'observation', 'trends', 'summary', 'sparklines', 'rain', 'forecast', 'health', 'theme'],
             array_keys($vm),
         );
 

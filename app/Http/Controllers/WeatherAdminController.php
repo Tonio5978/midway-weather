@@ -31,6 +31,13 @@ final class WeatherAdminController
         }
         // Old Admin tabs must preserve an explicit map selection on unrelated saves.
         $v['basemap'] ??= app(WeatherSettings::class)->read()['values']['basemap'];
+        // A cached Admin client cannot silently remove newly published sensor tiles.
+        $known = array_column($v['tiles'] ?? [], 'id');
+        foreach (app(WeatherSettings::class)->read()['values']['tiles'] as $tile) {
+            if (str_starts_with($tile['id'], 'sensor-') && ! in_array($tile['id'], $known, true)) {
+                $v['tiles'][] = $tile;
+            }
+        }
         $rules = [
             'basemap' => 'required|array:provider,authentication',
             'basemap.provider' => ['required', Rule::in(['environment', ...array_keys(Basemap::catalog())])],

@@ -1278,3 +1278,21 @@ ol { list-style: none; }
 .map-basemap-status { position: absolute; z-index: 500; top: 42px; left: 9px; max-width: calc(100% - 18px); padding: 5px 8px; border-radius: 7px; color: #fff; background: rgba(0,0,0,.8); font-size: 12px; }
 
 .weather-mapbox-logo{position:absolute;z-index:500;left:9px;bottom:9px;line-height:0}.weather-mapbox-logo img{display:block;width:88px;height:23px}.map-attrib--mapbox{max-width:calc(100% - 120px)}
+
+/* Sensor tiles use the existing metric sizing and theme tokens. */
+.sensor-icon{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.7;flex-shrink:0}
+.metric--sensor .metric-head{display:flex;align-items:center;gap:8px;overflow-wrap:anywhere}
+.metric--sensor .metric-unit{font-size:clamp(12px,1.1vw,20px);margin-left:6px}
+.metric--sensor .metric-value{font-size:clamp(26px,3vw,54px)}
+.display .metric.metric--sensor{padding:12px 16px;gap:0}
+.display .metric--sensor .metric-head{font-size:14px;line-height:1.2;letter-spacing:.035em}
+.display .metric--sensor .metric-body{margin:4px 0;line-height:1;gap:4px}
+.display .metric--sensor .metric-foot{padding:0;margin:2px 0;line-height:1.2;font-size:12px;flex:none;overflow-wrap:anywhere}
+.display .metric--sensor .sensor-time,.display .metric--sensor .sensor-history{font-size:10px}
+@media(min-width:1025px){
+ .dense-layout .metric--sensor .metric-value{font-size:28px!important}
+ .dense-layout .metric--sensor .metric-head{font-size:12px}
+ .dense-layout .metric--sensor .sensor-icon{width:16px;height:16px}
+ .dense-layout .metric--sensor .metric-foot{font-size:11px}
+ .dense-layout .metric--sensor .sensor-time,.dense-layout .metric--sensor .sensor-history{font-size:10px}
+}

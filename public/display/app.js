@@ -683,10 +683,32 @@
         display.classList.toggle('dense-layout',display.classList.contains('configured-layout') && window.innerWidth>1024 && height<195);
     }
 
+    function syncSensorTiles(model) {
+        var tiles=model.sensor_tiles||{}, changed=false;
+        document.querySelectorAll('[data-sensor-tile]').forEach(function(el){if(!tiles[el.dataset.tile]){el.remove();changed=true;}});
+        Object.keys(tiles).forEach(function(id){
+            var t=tiles[id],el=document.querySelector('[data-tile="'+id+'"]');
+            if(!el||!el.hasAttribute('data-sensor-tile')){
+                if(el)el.remove();el=document.createElement('div');el.className='tile metric metric--sensor';el.dataset.tile=id;el.setAttribute('data-sensor-tile','');
+                el.innerHTML='<div class="metric-head"><svg class="sensor-icon" aria-hidden="true"><use/></svg><span></span></div><div class="metric-body"><span class="metric-value"></span><span class="metric-unit"></span></div><p class="metric-foot sensor-state"></p><p class="metric-foot sensor-time"></p><p class="metric-foot sensor-history"></p>';
+                document.querySelector('.metrics').appendChild(el);changed=true;
+            }
+            el.querySelector('.metric-head span').textContent=t.label;
+            el.querySelector('use').setAttribute('href','#'+t.symbol);
+            el.querySelector('.metric-value').textContent=t.value===null?'—':t.value;
+            el.querySelector('.metric-unit').textContent=t.unit;
+            el.querySelector('.sensor-state').textContent=t.state.charAt(0).toUpperCase()+t.state.slice(1)+(t.value===null&&t.last_known!==null?' · Last known '+t.last_known+' '+t.unit:'');
+            el.querySelector('.sensor-time').textContent=t.observed_at?'Observed '+new Date(t.observed_at).toLocaleString(): 'No reading yet';
+            el.querySelector('.sensor-history').textContent=t.history.min===null?'No available history in 24h':'24h available range: '+t.history.min+'–'+t.history.max+' '+t.unit;
+        });
+        if(changed)configurationRevision=null;
+    }
+
     /* ── Master render ──────────────────────────────────────────────────── */
     function render(model) {
         if (!model) return;
         state = model;
+        syncSensorTiles(model);
         applyConfiguration(model);
         updateDashboardIdentity(model);
         fitConfiguredLayout();
