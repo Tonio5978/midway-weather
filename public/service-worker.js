@@ -1,13 +1,14 @@
 'use strict';
 
-var CACHE_NAME = 'midway-shell-v17';
+var CACHE_NAME = 'midway-shell-v18';
 var SCOPE_URL = self.registration.scope;
 var SHELL_PATHS = [
     'manifest.webmanifest',
-    'display/app.css?v=18',
-    'display/app.js?v=11',
+    'display/app.css?v=19',
+    'display/app.js?v=12',
     'display/pwa.js?v=6',
     'display/themes/october-fall.css?v=2',
+    'vendor/mapbox-logo.svg',
     'vendor/leaflet/leaflet.css?v=2',
     'vendor/leaflet/leaflet.js?v=2',
     'icons/midway-weather.svg',

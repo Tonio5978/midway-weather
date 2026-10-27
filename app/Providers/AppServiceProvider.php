@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Weather\Configuration\Basemap;
 use App\Weather\Configuration\ConfiguredPhraseSource;
 use App\Weather\Configuration\WeatherSettings;
 use App\Weather\Contracts\ConditionPhraseSource;
@@ -15,6 +16,7 @@ class AppServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->app->scoped(WeatherSettings::class);
+        $this->app->scoped(Basemap::class);
         $this->app->bind(ConditionPhraseSource::class, ConfiguredPhraseSource::class);
     }
 

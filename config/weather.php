@@ -20,6 +20,8 @@ return [
         'provider' => env('WEATHER_BASEMAP_PROVIDER', 'openstreetmap'),
         // This optional tile key is intentionally browser-visible, unlike Ambient keys.
         'stadia_api_key' => env('STADIA_MAPS_API_KEY', ''),
+        'maptiler_api_key' => env('MAPTILER_API_KEY', ''),
+        'mapbox_public_token' => env('MAPBOX_PUBLIC_TOKEN', ''),
     ],
 
     'station_name' => env('WEATHER_STATION_NAME', 'Midway Weather'),

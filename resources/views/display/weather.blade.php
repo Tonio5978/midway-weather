@@ -64,7 +64,7 @@
     <link rel="icon" href="{{ asset('favicon.ico') }}" sizes="any">
     <link rel="apple-touch-icon" href="{{ asset('icons/apple-touch-icon.png') }}" sizes="180x180">
     <link rel="stylesheet" href="{{ asset('vendor/leaflet/leaflet.css') }}?v=2">
-    <link rel="stylesheet" href="{{ asset('display/app.css') }}?v=18">
+    <link rel="stylesheet" href="{{ asset('display/app.css') }}?v=19">
 
     @if ($themeStylesheet = $get('theme_catalog.'.$get('seasonal_theme', 'default').'.stylesheet'))
     <link id="seasonal-theme-stylesheet" rel="stylesheet" href="{{ $themeStylesheet }}">
@@ -76,7 +76,7 @@
     <script id="bootstrap-data" type="application/json">{!! json_encode($display, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_UNESCAPED_UNICODE) !!}</script>
 
     <script defer src="{{ asset('vendor/leaflet/leaflet.js') }}?v=2"></script>
-    <script defer src="{{ asset('display/app.js') }}?v=11"></script>
+    <script defer src="{{ asset('display/app.js') }}?v=12"></script>
     @unless ($adminPreview ?? false)
     <script id="pwa-client"
             defer
@@ -202,7 +202,8 @@
                          aria-label="Current radar near {{ $get('meta.location_name') }}"></div>
                     <div class="map-radar-time" id="radar-time">{{ $get('meta.radar.enabled', true) ? 'Radar · Updating…' : 'Map' }}</div>
                     <div class="map-basemap-status" id="basemap-status" role="status" hidden>Base map unavailable. Check map provider setup.</div>
-                    <div class="map-attrib">@if($get('meta.basemap.provider') === 'stadia')© <a href="https://stadiamaps.com/attribution/" target="_blank" rel="noopener noreferrer">Stadia Maps</a> · © <a href="https://openmaptiles.org/" target="_blank" rel="noopener noreferrer">OpenMapTiles</a> · @endif© <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap contributors</a> · Radar RainViewer</div>
+                    <a id="mapbox-logo" class="weather-mapbox-logo" href="https://www.mapbox.com/" target="_blank" rel="noopener noreferrer" @if(!$get('meta.basemap.logo')) hidden @endif><img src="{{ asset('vendor/mapbox-logo.svg') }}" width="88" height="23" alt="Mapbox"></a>
+                    <div class="map-attrib" id="map-attribution">@foreach($get('meta.basemap.attribution', []) as $credit)<a href="{{ $credit['url'] }}" target="_blank" rel="noopener noreferrer">{{ $credit['label'] }}</a> · @endforeach<span>Radar RainViewer</span></div>
                 </div>
             </section>
         </main>

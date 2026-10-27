@@ -61,6 +61,9 @@
     var consecutiveFailures = 0;
     var map = null;
     var mapMarker = null;
+    var basemapLayer = null, basemapSignature = null, basemapRetryTimer = null, basemapWatchdog = null;
+    var basemapGeneration = 0, basemapRetryDelay = 60000;
+
     var mapCenter = null;      // [lat, lon] of the home marker — re-centered after any resize
     var radarLayer = null;
     var pendingRadarLayer = null;
@@ -337,21 +340,7 @@
         // Only the base pane is darkened; radar colors, marker and attribution stay intact.
         map.createPane('basemapPane');
         map.getPane('basemapPane').style.zIndex = 200;
-        if (el.getAttribute('data-basemap-provider') === 'openstreetmap') {
-            map.getPane('basemapPane').classList.add('basemap-osm');
-        }
-        L.tileLayer(el.getAttribute('data-basemap-url'), {
-            pane: 'basemapPane',
-            maxZoom: parseInt(el.getAttribute('data-basemap-max-zoom'), 10),
-            // Real browser origin, including private srcdoc previews. Never spoof it.
-            referrerPolicy: 'strict-origin-when-cross-origin',
-            crossOrigin: true,
-            // Load the visible area only; no speculative tile buffer or retina doubling.
-            keepBuffer: 0
-        }).on('tileerror', function () {
-            var status = $('basemap-status');
-            if (status) status.hidden = false;
-        }).addTo(map);
+        syncBasemap(get(state, 'meta.basemap'));
 
         var icon = L.divIcon({
             className: '',
@@ -372,6 +361,96 @@
         // The tile container is sized by CSS after layout; nudge Leaflet to
         // recompute once everything has settled.
         setTimeout(function () { if (map) map.invalidateSize(); }, 200);
+    }
+
+    function basemapStatus(message, visible) {
+        var status = $('basemap-status');
+        if (status) { status.textContent = message; status.hidden = !visible; }
+        if (window.parent !== window) window.parent.postMessage({type: 'weather:basemap-status', message: message}, '*');
+    }
+
+    function basemapCredits(definition) {
+        var attribution = $('map-attribution');
+        if (attribution) {
+            attribution.replaceChildren();
+            (definition.attribution || []).forEach(function (credit) {
+                var link = document.createElement('a');
+                link.href = credit.url; link.textContent = credit.label;
+                link.target = '_blank'; link.rel = 'noopener noreferrer';
+                attribution.appendChild(link); attribution.appendChild(document.createTextNode(' · '));
+            });
+            attribution.appendChild(document.createTextNode('Radar RainViewer'));
+        }
+        var logo = $('mapbox-logo');
+        if (logo) logo.hidden = !definition.logo;
+        if (attribution) attribution.classList.toggle('map-attrib--mapbox', !!definition.logo);
+        map.getPane('basemapPane').classList.toggle('basemap-osm', definition.provider === 'openstreetmap');
+        $('map').setAttribute('data-basemap-provider', definition.provider);
+    }
+
+    function syncBasemap(definition) {
+        if (!map || !definition) return;
+        var signature = JSON.stringify(definition);
+        if (signature === basemapSignature) return;
+        basemapSignature = signature;
+        basemapRetryDelay = 60000;
+        clearTimeout(basemapRetryTimer); basemapRetryTimer = null;
+        loadBasemap(definition, definition, false);
+    }
+
+    function loadBasemap(definition, requested, fallback) {
+        var generation = ++basemapGeneration, loaded = 0, errors = 0, finished = false;
+        clearTimeout(basemapWatchdog);
+        if (basemapLayer) { basemapLayer.off(); map.removeLayer(basemapLayer); basemapLayer = null; }
+        basemapCredits(definition);
+        function retry() {
+            if (basemapRetryTimer) return;
+            basemapRetryTimer = setTimeout(function () {
+                basemapRetryTimer = null;
+                loadBasemap(requested, requested, false);
+            }, basemapRetryDelay);
+            basemapRetryDelay = Math.min(300000, basemapRetryDelay * 2);
+        }
+        function failed() {
+            if (finished || generation !== basemapGeneration) return;
+            finished = true; clearTimeout(basemapWatchdog);
+            if (!fallback && requested.provider !== 'openstreetmap' && requested.fallback) {
+                retry();
+                basemapStatus(requested.name + ' unavailable. Trying OpenStreetMap temporarily…', true);
+                loadBasemap(requested.fallback, requested, true);
+            } else {
+                basemapStatus('Base map unavailable. Check map provider setup or connectivity. Radar has its own status.', true);
+                retry();
+            }
+        }
+        if (!definition.tile_url) { failed(); return; }
+        basemapWatchdog = setTimeout(failed, 15000);
+        basemapLayer = L.tileLayer(definition.tile_url, {
+            pane: 'basemapPane', maxZoom: definition.max_zoom,
+            tileSize: definition.tile_size || 256, zoomOffset: definition.zoom_offset || 0,
+            referrerPolicy: 'strict-origin-when-cross-origin', crossOrigin: true,
+            keepBuffer: 0
+        }).on('loading', function () {
+            if (generation !== basemapGeneration) return;
+            loaded = 0; errors = 0; finished = false;
+            clearTimeout(basemapWatchdog); basemapWatchdog = setTimeout(failed, 15000);
+        }).on('tileload', function () { loaded++; })
+          .on('tileerror', function () { errors++; })
+          .on('load', function () {
+            if (generation !== basemapGeneration || finished) return;
+            if (!loaded || errors >= Math.max(2, loaded)) {
+                // Leaflet still reads this layer's map after firing "load".
+                // Swap layers on the next turn, after its tile callback completes.
+                setTimeout(failed, 0); return;
+            }
+            finished = true; clearTimeout(basemapWatchdog);
+            if (fallback) {
+                basemapStatus('Using OpenStreetMap temporarily — ' + requested.name + ' unavailable. Retrying automatically.', true);
+            } else {
+                clearTimeout(basemapRetryTimer); basemapRetryTimer = null; basemapRetryDelay = 60000;
+                basemapStatus(errors ? definition.name + ' loaded with some missing tiles. Check connectivity.' : definition.name + ' tiles loaded. Preview is ready.', errors > 0);
+            }
+        }).addTo(map);
     }
 
     function startRadarRefresh(el) {
@@ -537,6 +616,7 @@
     var activeSeasonalTheme = null;
     var forecastHome = null;
     function applyConfiguration(model) {
+        if (map) syncBasemap(get(model, 'meta.basemap'));
         var bundle = model.configuration;
         if (!bundle || configurationRevision === bundle.revision && activeSeasonalTheme === model.seasonal_theme) return;
         configurationRevision = bundle.revision;
