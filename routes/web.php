@@ -10,6 +10,7 @@ use App\Http\Controllers\DisplayController;
 use App\Http\Controllers\OperationalContractController;
 use App\Http\Controllers\WeatherAdminController;
 use App\Http\Controllers\WeatherLoginController;
+use App\Http\Controllers\WeatherProvidersController;
 use App\Http\Middleware\PrivateWeatherAdmin;
 use App\Http\Middleware\WeatherAdminSession;
 use Illuminate\Support\Facades\Route;
@@ -97,6 +98,10 @@ Route::middleware(PrivateWeatherAdmin::class)->group(function () {
         Route::post('/admin/settings', [WeatherAdminController::class, 'save']);
         Route::post('/admin/locate', [WeatherAdminController::class, 'locate'])->middleware('throttle:10,1');
         Route::get('/admin/diagnostics', [WeatherAdminController::class, 'diagnostics']);
+        Route::get('/admin/providers', [WeatherProvidersController::class, 'index']);
+        Route::post('/admin/providers/stations', [WeatherProvidersController::class, 'stations']);
+        Route::post('/admin/providers/{provider}', [WeatherProvidersController::class, 'save'])->whereIn('provider', ['ambient', 'open_meteo']);
+        Route::post('/admin/providers/{provider}/probe', [WeatherProvidersController::class, 'probe'])->whereIn('provider', ['ambient', 'open_meteo'])->middleware('throttle:6,1');
         Route::post('/admin/refresh', [WeatherAdminController::class, 'refresh'])->middleware('throttle:1,1');
     });
 });

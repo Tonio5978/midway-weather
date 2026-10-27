@@ -6,6 +6,7 @@ namespace App\Weather\Services;
 
 use App\Models\Observation;
 use App\Weather\Data\ObservationData;
+use App\Weather\Providers\PrimaryWeatherStore;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Collection;
 
@@ -54,7 +55,7 @@ class ObservationRepository
      */
     public function latest(): ?Observation
     {
-        return Observation::query()->latestFirst()->first();
+        return app(PrimaryWeatherStore::class)->observations()->latestFirst()->first();
     }
 
     /**
@@ -66,7 +67,7 @@ class ObservationRepository
         $from = $target->subMinutes($toleranceMinutes);
         $to = $target->addMinutes($toleranceMinutes);
 
-        return Observation::query()
+        return app(PrimaryWeatherStore::class)->observations()
             ->whereBetween('observed_at', [$from, $to])
             // Order by absolute distance from the target timestamp.
             ->orderByRaw('ABS(strftime(\'%s\', observed_at) - ?)', [$target->getTimestamp()])
@@ -84,7 +85,7 @@ class ObservationRepository
     {
         $since = CarbonImmutable::now('UTC')->subHours($hours);
 
-        $observations = Observation::query()
+        $observations = app(PrimaryWeatherStore::class)->observations()
             ->where('observed_at', '>=', $since)
             ->orderBy('observed_at')
             ->get();

@@ -7,6 +7,7 @@ namespace App\Weather\Services;
 use App\Models\CollectionStatus;
 use App\Models\ForecastDay;
 use App\Models\Observation;
+use App\Weather\Providers\PrimaryWeatherStore;
 use App\Weather\Support\AtmosphereModifier;
 use App\Weather\Support\Number;
 use Carbon\CarbonImmutable;
@@ -36,7 +37,7 @@ class CanonicalSummary
 
         // The existing indexed timestamp/retention bounds cap the scan. No cached
         // daily aggregate is trusted: it has no covered-through timestamp.
-        foreach (Observation::query()->where('observed_at', '>=', $since)->latestFirst()->cursor() as $row) {
+        foreach (app(PrimaryWeatherStore::class)->observations()->where('observed_at', '>=', $since)->latestFirst()->cursor() as $row) {
             $time = $this->observationTime($row, $now);
             $temperature = $this->temperature($row->getRawOriginal('temperature'));
             if ($time === null || $temperature === null) {
@@ -144,7 +145,7 @@ class CanonicalSummary
 
     private function refreshState(string $source, CarbonImmutable $now): array
     {
-        $status = CollectionStatus::query()->where('source', $source)->first();
+        $status = CollectionStatus::query()->where('source', app(PrimaryWeatherStore::class)->statusSource($source))->first();
         if ($status === null) {
             return ['healthy' => false, 'failed' => false];
         }

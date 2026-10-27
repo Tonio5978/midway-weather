@@ -8,7 +8,10 @@ use App\Models\CollectionStatus;
 use App\Models\Observation;
 use App\Weather\Clients\AmbientWeatherClient;
 use App\Weather\Exceptions\WeatherApiException;
-use Carbon\CarbonImmutable;
+use App\Weather\Providers\PollDeferred;
+use App\Weather\Providers\PrimaryWeatherStore;
+use App\Weather\Providers\StationCatalog;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Throwable;
 
@@ -33,7 +36,35 @@ class WeatherCollectionService
     public function collect(): array
     {
         try {
-            $data = $this->client->latestObservation();
+            $inventory = $this->client->inventory();
+            $devices = $inventory['devices'];
+            if ($devices === []) {
+                throw WeatherApiException::forSource('Ambient', 'Response contained no devices.');
+            }
+            $batch = app(StationCatalog::class)->ingest($devices, true, $inventory['revision']);
+            $selection = app(PrimaryWeatherStore::class)->settings();
+            $legacy = $batch['results'][$selection?->legacy_station_id] ?? null;
+            $legacyResult = $legacy ? $this->repository->store($legacy) : null;
+            if (array_filter($batch['results'])) {
+                DB::table('weather_provider_states')->where('provider', 'ambient')->update(['last_collection_at' => now()]);
+            }
+            // Keep today's summary current for the "rain today vs. recent" module.
+            try {
+                $timezone = (string) config('weather.timezone', 'America/New_York');
+                foreach (array_filter($batch['results']) as $stationId => $reading) {
+                    $this->summaries->rebuildForDate($reading->observedAt->setTimezone($timezone)->startOfDay(), $stationId);
+                }
+            } catch (Throwable $e) {
+                // A summary failure should not fail the collection itself.
+                Log::warning('Failed to rebuild daily summary during collection.', ['exception' => $e::class]);
+            }
+
+            $data = $batch['results'][$selection?->primary_station_id] ?? null;
+            if (! $data) {
+                throw WeatherApiException::forSource('Ambient', 'Primary station is missing or has no usable observation.');
+            }
+        } catch (PollDeferred $e) {
+            return ['success' => true, 'created' => false, 'observation' => $this->repository->latest(), 'error' => null, 'skipped' => true];
         } catch (WeatherApiException $e) {
             $message = $e->getMessage();
             CollectionStatus::recordFailure(CollectionStatus::SOURCE_AMBIENT, $message);
@@ -49,7 +80,11 @@ class WeatherCollectionService
         }
 
         try {
-            $result = $this->repository->store($data);
+            $result = $selection->primary_station_id === $selection->legacy_station_id ? $legacyResult : ['observation' => $this->repository->latest(), 'created' => $batch['created'][$selection->primary_station_id] ?? false];
+            if (! $result || ! $result['observation']) {
+                throw new \RuntimeException('No stored primary observation.');
+            }
+            DB::table('weather_provider_states')->where('provider', 'ambient')->update(['last_collection_at' => now()]);
         } catch (Throwable $e) {
             CollectionStatus::recordFailure(CollectionStatus::SOURCE_AMBIENT, 'Could not save observation.');
             Log::error('Failed to persist observation.', ['exception' => $e::class]);
@@ -57,16 +92,8 @@ class WeatherCollectionService
             return ['success' => false, 'created' => false, 'observation' => null, 'error' => 'Could not save observation.'];
         }
 
-        // Keep today's summary current for the "rain today vs. recent" module.
-        try {
-            $timezone = (string) config('weather.timezone', 'America/New_York');
-            $this->summaries->rebuildForDate(CarbonImmutable::now($timezone)->startOfDay());
-        } catch (Throwable $e) {
-            // A summary failure should not fail the collection itself.
-            Log::warning('Failed to rebuild daily summary during collection.', ['exception' => $e::class]);
-        }
-
         CollectionStatus::recordSuccess(CollectionStatus::SOURCE_AMBIENT);
+        cache()->forget('display.weather.payload');
         Log::debug('Ambient collection succeeded.', [
             'observed_at' => $result['observation']->observed_at->toIso8601String(),
             'created' => $result['created'],

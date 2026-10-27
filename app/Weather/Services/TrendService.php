@@ -6,6 +6,7 @@ namespace App\Weather\Services;
 
 use App\Models\Observation;
 use App\Weather\Data\Trend;
+use App\Weather\Providers\PrimaryWeatherStore;
 use Carbon\CarbonImmutable;
 
 /**
@@ -50,7 +51,7 @@ class TrendService
         $timezone = (string) config('weather.timezone', 'America/New_York');
         $midnightUtc = CarbonImmutable::now($timezone)->startOfDay()->utc();
 
-        $baseline = Observation::query()
+        $baseline = app(PrimaryWeatherStore::class)->observations()
             ->where('observed_at', '>=', $midnightUtc)
             ->whereNotNull('temperature')
             ->orderBy('observed_at')

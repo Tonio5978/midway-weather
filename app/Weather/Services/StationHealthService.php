@@ -6,6 +6,7 @@ namespace App\Weather\Services;
 
 use App\Models\CollectionStatus;
 use App\Models\Observation;
+use App\Weather\Providers\PrimaryWeatherStore;
 use Carbon\CarbonImmutable;
 
 /**
@@ -87,7 +88,7 @@ class StationHealthService
      */
     public function statusSummary(string $source): array
     {
-        $status = CollectionStatus::query()->where('source', $source)->first();
+        $status = CollectionStatus::query()->where('source', app(PrimaryWeatherStore::class)->statusSource($source))->first();
 
         if ($status === null) {
             return [

@@ -8,7 +8,9 @@ use App\Models\CollectionStatus;
 use App\Models\ForecastDay;
 use App\Weather\Clients\OpenMeteoClient;
 use App\Weather\Exceptions\WeatherApiException;
+use App\Weather\Providers\PollDeferred;
 use Carbon\CarbonImmutable;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Throwable;
 
@@ -30,6 +32,8 @@ class ForecastService
     {
         try {
             $forecast = $this->client->dailyForecast();
+        } catch (PollDeferred $e) {
+            return ['success' => true, 'days' => 0, 'error' => null, 'skipped' => true];
         } catch (WeatherApiException $e) {
             $message = $e->getMessage();
             CollectionStatus::recordFailure(CollectionStatus::SOURCE_FORECAST, $message);
@@ -71,6 +75,8 @@ class ForecastService
         }
 
         CollectionStatus::recordSuccess(CollectionStatus::SOURCE_FORECAST);
+        DB::table('weather_provider_states')->where('provider', 'open_meteo')->update(['last_collection_at' => now()]);
+        cache()->forget('display.weather.payload');
         Log::debug('Forecast refresh succeeded.', ['days' => count($forecast->days)]);
 
         return ['success' => true, 'days' => count($forecast->days), 'error' => null];

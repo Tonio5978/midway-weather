@@ -6,6 +6,9 @@ namespace App\Weather\Clients;
 
 use App\Weather\Data\ForecastData;
 use App\Weather\Exceptions\WeatherApiException;
+use App\Weather\Providers\Connections;
+use App\Weather\Providers\PollDeferred;
+use App\Weather\Providers\ProviderRequests;
 use Illuminate\Http\Client\Factory as HttpFactory;
 use Illuminate\Http\Client\PendingRequest;
 use Throwable;
@@ -28,11 +31,14 @@ class OpenMeteoClient
      */
     public function dailyForecast(): ForecastData
     {
+        if (! app(Connections::class)->enabled('open_meteo')) {
+            throw new PollDeferred('Open-Meteo collection is disabled.');
+        }
         $query = [
             'latitude' => (float) config('weather.latitude'),
             'longitude' => (float) config('weather.longitude'),
             'timezone' => (string) config('weather.timezone', 'America/New_York'),
-            'forecast_days' => (int) config('weather.open_meteo.forecast_days', 7),
+            'forecast_days' => app(Connections::class)->forecastDays(),
             'temperature_unit' => (string) config('weather.open_meteo.temperature_unit', 'fahrenheit'),
             'wind_speed_unit' => (string) config('weather.open_meteo.wind_speed_unit', 'mph'),
             'precipitation_unit' => (string) config('weather.open_meteo.precipitation_unit', 'inch'),
@@ -50,7 +56,9 @@ class OpenMeteoClient
         ];
 
         try {
-            $response = $this->request()->get((string) config('weather.open_meteo.base_url'), $query);
+            $response = app(ProviderRequests::class)->run('open_meteo', [], fn () => $this->request()->get((string) config('weather.open_meteo.base_url'), $query));
+        } catch (PollDeferred $e) {
+            throw $e;
         } catch (Throwable $e) {
             throw WeatherApiException::forSource('Open-Meteo', $this->safeReason($e));
         }
@@ -83,11 +91,7 @@ class OpenMeteoClient
             ->acceptJson()
             ->timeout((int) config('weather.open_meteo.timeout', 10))
             ->connectTimeout((int) config('weather.open_meteo.connect_timeout', 5))
-            ->retry(
-                (int) config('weather.open_meteo.retry_times', 2),
-                (int) config('weather.open_meteo.retry_sleep_ms', 1500),
-                throw: false,
-            );
+            ->retry(1, 0, throw: false);
     }
 
     private function safeReason(Throwable $e): string
