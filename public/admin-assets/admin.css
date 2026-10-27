@@ -8,3 +8,5 @@
 .identity-icon-preview{display:flex;align-items:center;gap:14px;margin:12px 0;color:#23758a}.identity-icon-preview svg{width:48px;height:48px;flex:none;fill:none;stroke:currentColor;stroke-width:1.8}.identity-icon-preview span{font-size:14px}.field-grid small{font-weight:400;color:#526f7c}
 
 #identity-preview-slot{min-width:0}
+
+.basemap-settings{border-top:1px solid #e4edf1;margin-top:22px;padding-top:22px;min-width:0}.map-provider-guide{background:#f2f7fa;border:1px solid #d7e5ec;border-radius:10px;padding:18px;margin-top:18px;overflow-wrap:anywhere}.map-provider-guide h3{margin-top:0}.map-provider-guide p{font-size:14px}.map-provider-guide .muted{font-size:13px}#map-key-fields{max-width:900px}#map-key-fields .check{font-size:13px;font-weight:400}#map-key-fields input[type=checkbox]{flex-shrink:0}#map-preview-result{font-size:14px;color:#294e61}

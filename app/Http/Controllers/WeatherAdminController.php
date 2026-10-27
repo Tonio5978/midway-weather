@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\CollectionStatus;
 use App\Support\ReleaseIdentity;
+use App\Weather\Configuration\Basemap;
 use App\Weather\Configuration\WeatherSettings;
 use App\Weather\Configuration\WeatherSources;
 use App\Weather\Services\DisplayPresenter;
@@ -19,7 +20,7 @@ final class WeatherAdminController
 {
     public function index(WeatherSettings $settings)
     {
-        return view('admin.index', ['settings' => $settings->read(), 'tiles' => WeatherSettings::tiles(), 'contexts' => WeatherSettings::contexts(), 'themes' => WeatherSettings::themes(), 'identityIcons' => WeatherSettings::identityIcons()]);
+        return view('admin.index', ['settings' => $settings->read(), 'tiles' => WeatherSettings::tiles(), 'contexts' => WeatherSettings::contexts(), 'themes' => WeatherSettings::themes(), 'identityIcons' => WeatherSettings::identityIcons(), 'basemaps' => Basemap::catalog(), 'mapCredentials' => app(Basemap::class)->credentialStatus(), 'environmentBasemap' => app(Basemap::class)->environmentProvider()]);
     }
 
     public function validateValues(array $v): array
@@ -28,7 +29,12 @@ final class WeatherAdminController
         if (! array_key_exists('identity', $v)) {
             $v['identity'] = app(WeatherSettings::class)->read()['values']['identity'];
         }
+        // Old Admin tabs must preserve an explicit map selection on unrelated saves.
+        $v['basemap'] ??= app(WeatherSettings::class)->read()['values']['basemap'];
         $rules = [
+            'basemap' => 'required|array:provider,authentication',
+            'basemap.provider' => ['required', Rule::in(['environment', ...array_keys(Basemap::catalog())])],
+            'basemap.authentication' => ['required', Rule::in(['domain', 'key'])],
             'identity' => 'required|array:title,subtitle,icon',
             'identity.title' => ['required', 'string', 'max:60', 'not_regex:/[\x00-\x1F\x7F]/u'],
             'identity.subtitle' => ['present', 'nullable', 'string', 'max:120', 'not_regex:/[\x00-\x1F\x7F]/u'],
@@ -81,23 +87,60 @@ final class WeatherAdminController
         return $data;
     }
 
+    private function mapCredential(Request $request, array $values): ?array
+    {
+        $input = $request->validate([
+            'map_credential' => 'sometimes|array:provider,key,clear',
+            'map_credential.provider' => ['required_with:map_credential', Rule::in(['stadia', 'maptiler', 'mapbox'])],
+            'map_credential.key' => ['nullable', 'string', 'max:2048', 'regex:/^[a-zA-Z0-9._~+\/-]*$/'],
+            'map_credential.clear' => 'sometimes|boolean',
+        ])['map_credential'] ?? null;
+        if ($input && $input['provider'] !== $values['basemap']['provider']) {
+            throw ValidationException::withMessages(['map_credential' => 'The tile key must belong to the selected provider.']);
+        }
+        if (($input['clear'] ?? false) && ($input['key'] ?? '') !== '') {
+            throw ValidationException::withMessages(['map_credential' => 'Choose either a replacement key or removal of the saved key.']);
+        }
+        if (($input['provider'] ?? null) === 'mapbox' && ($input['key'] ?? '') !== '' && ! str_starts_with($input['key'], 'pk.')) {
+            throw ValidationException::withMessages(['map_credential.key' => 'Use a Mapbox public token beginning with pk. Secret tokens are not supported.']);
+        }
+        $maps = app(Basemap::class);
+        $maps->useDraftCredential($input);
+        $provider = $values['basemap']['provider'];
+        $needsKey = in_array($provider, ['maptiler', 'mapbox'], true) || ($provider === 'stadia' && $values['basemap']['authentication'] === 'key');
+        if ($needsKey && $maps->key($provider) === '') {
+            $maps->useDraftCredential(null);
+            throw ValidationException::withMessages(['map_credential.key' => 'Add a browser tile key for this provider before previewing or saving.']);
+        }
+
+        return $input;
+    }
+
     public function save(Request $r, WeatherSettings $s)
     {
-        $r->validate(['revision' => 'required|integer|min:0', 'values' => 'required|array:identity,tiles,map,display,theme,thresholds,quips']);
+        $r->validate(['revision' => 'required|integer|min:0', 'values' => 'required|array:identity,tiles,map,display,theme,thresholds,quips,basemap']);
 
-        return response()->json($s->save($this->validateValues($r->input('values')), (int) $r->input('revision')));
+        $values = $this->validateValues($r->input('values'));
+        $credential = $this->mapCredential($r, $values);
+        try {
+            return response()->json([...$s->save($values, (int) $r->input('revision'), $credential), 'map_credentials' => app(Basemap::class)->credentialStatus()]);
+        } finally {
+            app(Basemap::class)->useDraftCredential(null);
+        }
     }
 
     public function preview(Request $r, WeatherSettings $s, DisplayPresenter $presenter)
     {
-        $r->validate(['values' => 'required|array:identity,tiles,map,display,theme,thresholds,quips']);
+        $r->validate(['values' => 'required|array:identity,tiles,map,display,theme,thresholds,quips,basemap']);
         $v = $this->validateValues($r->input('values'));
+        $this->mapCredential($r, $v);
         $s->useDraft($v);
         try {
             $display = $presenter->present();
 
             return response()->view('display.weather', ['display' => $display, 'temperatureMoodPreview' => null, 'adminPreview' => true])->header('Cache-Control', 'no-store, private');
         } finally {
+            app(Basemap::class)->useDraftCredential(null);
             $s->useDraft(null);
             $s->apply();
         }

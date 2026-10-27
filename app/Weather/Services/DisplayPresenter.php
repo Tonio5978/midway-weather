@@ -7,6 +7,7 @@ namespace App\Weather\Services;
 use App\Models\DailySummary;
 use App\Models\ForecastDay;
 use App\Models\Observation;
+use App\Weather\Configuration\Basemap;
 use App\Weather\Configuration\WeatherSettings;
 use App\Weather\Data\Trend;
 use App\Weather\Support\AtmosphereModifier;
@@ -174,25 +175,12 @@ class DisplayPresenter
         ];
     }
 
-    /** @return array{provider: string, tile_url: string, max_zoom: int} */
     private function basemap(): array
     {
-        if (config('weather.basemap.provider') === 'stadia') {
-            $key = trim((string) config('weather.basemap.stadia_api_key', ''));
+        $maps = app(Basemap::class);
+        $selection = app(WeatherSettings::class)->read()['values']['basemap'];
 
-            return [
-                'provider' => 'stadia',
-                'tile_url' => 'https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png'
-                    .($key !== '' ? '?api_key='.rawurlencode($key) : ''),
-                'max_zoom' => 20,
-            ];
-        }
-
-        return [
-            'provider' => 'openstreetmap',
-            'tile_url' => 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-            'max_zoom' => 19,
-        ];
+        return [...$maps->resolve($selection), 'fallback' => $maps->resolve(['provider' => 'openstreetmap', 'authentication' => 'domain'])];
     }
 
     /**

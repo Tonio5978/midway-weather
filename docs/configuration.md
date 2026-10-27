@@ -95,9 +95,11 @@ Leaflet is bundled locally. **The default is OpenStreetMap standard raster tiles
 ```dotenv
 WEATHER_BASEMAP_PROVIDER=openstreetmap
 STADIA_MAPS_API_KEY=
+MAPTILER_API_KEY=
+MAPBOX_PUBLIC_TOKEN=
 ```
 
-Keep the visible OpenStreetMap attribution. The [OSM tile usage policy](https://operations.osmfoundation.org/policies/tiles/) requires normal browser caching and a valid browser `Referer`. Do not disable referrers, bulk-download/prefetch tiles, use offline tile downloads, or proxy tiles anonymously. Midway loads only the displayed base-map area and does not refresh it on weather polling or cache third-party tiles in its service worker. This community service is best-effort, with no SLA; access can be withdrawn. For high-traffic/public signage fleets or guaranteed availability, use an appropriately licensed provider such as Stadia with your own account. Neither provider is an offline solution.
+Keep the visible OpenStreetMap attribution. The [OSM tile usage policy](https://operations.osmfoundation.org/policies/tiles/) requires normal browser caching and a valid browser `Referer`. Do not disable referrers, bulk-download/prefetch tiles, use offline tile downloads, or proxy tiles anonymously. Midway loads only the displayed base-map area and does not refresh it on weather polling or cache third-party tiles in its service worker. This community service is best-effort, with no SLA; access can be withdrawn. For high-traffic/public signage fleets or guaranteed availability, use an appropriately licensed provider such as Stadia with your own account. None of the supported providers is an offline solution.
 
 ### Optional: Stadia Maps (Alidade Smooth Dark)
 
@@ -120,7 +122,26 @@ Then choose the appropriate authentication method from [Stadia's documentation](
 
 If you choose a key, paste **your own** value into `STADIA_MAPS_API_KEY`. This is a browser tile key: it is deliberately included in dashboard HTML, display JSON, previews, and tile requests. Anyone who can view the dashboard can inspect it. Restrict its scope/usage using Stadia's available controls, monitor quotas, and revoke it if exposed unexpectedly. Never reuse Ambient credentials, use a shared project key, or post the key in an issue. Browser-visible tile authentication is separate from server-only station credentials. Domain authentication is preferable for public websites. Check your account's current licensing and quotas.
 
-After changing `.env`, run `php artisan optimize:clear`, restart the local server/scheduler if running, and reload the dashboard. On a managed host, rebuild its configuration cache through that host's normal release process. Provider selection is host configuration shared by the dashboard and both admin previews; it is not a saved dashboard-setting change.
+After changing `.env`, run `php artisan optimize:clear`, restart the local server/scheduler if running, and reload the dashboard. On a managed host, rebuild its configuration cache through that host's normal release process. Environment configuration is used until an explicit provider is saved in Admin → Radar & location. Choose “Use environment configuration” to restore host management. Both Admin previews and the public dashboard use the same provider resolver.
+
+### Admin provider selection and credentials
+
+Open **Admin → Radar & location → Base map**. Existing settings without a base-map choice inherit the environment provider without changing their saved revision or layout. Fresh installations inherit keyless OpenStreetMap. An explicit Admin choice overrides `WEATHER_BASEMAP_PROVIDER`; selecting **Use environment configuration** restores that provider and its environment credentials, ignoring Admin-saved keys.
+
+| Provider | Style and setup |
+| --- | --- |
+| OpenStreetMap | Standard raster tiles with Weather's existing base-only darkening. No key. Follow the usage policy above. |
+| Stadia | Alidade Smooth Dark, unchanged. Choose authorized-domain/localhost authentication or your own tile key. See the address-specific instructions above. |
+| MapTiler | Streets v4 raster tiles. Create a dedicated Cloud API key, restrict Allowed HTTP origins to your installation's domain, and enter it in Admin (or `MAPTILER_API_KEY` for environment management). [Key setup](https://docs.maptiler.com/guides/developer/credentials/api-key/). |
+| Mapbox | Dark v11 Static Tiles. Create a dedicated public `pk.` token with the read scopes needed for Static Tiles (`styles:tiles`) and restrict allowed URLs to your installation's origin. Enter it in Admin (or `MAPBOX_PUBLIC_TOKEN`). The unrestricted default token, secret `sk.` tokens, and Mapbox Standard styles are unsuitable here. [Token security](https://docs.mapbox.com/help/dive-deeper/how-to-use-mapbox-securely/). |
+
+Use separate development credentials and only authorize the hosts you need. Follow your provider's current quotas, account terms and pricing; preview requests count toward usage. Weather does not sign up for or purchase services.
+
+Admin-managed keys are encrypted in `weather_map_credentials` using Laravel's `APP_KEY`. Provider/authentication choices live in `weather_map_settings`; both tables are additive, and saves share the existing settings revision transaction. The legacy settings JSON keeps its previous shape so the prior release can still edit it after a code rollback. Preserve that key and include the database in private backups. Admin shows only configured/source status; blank replacement inputs keep existing credentials. Removing an Admin key restores the matching environment key, if present. Domain-mode Stadia sends no key. Environment mode always uses environment credentials. A lost/changed `APP_KEY` requires replacement of encrypted credentials. These protections are for storage: the selected browser tile key is intentionally visible in public HTML/JSON and provider requests. Never enter server weather credentials or account-management tokens.
+
+**Test & preview map** uses the same Leaflet renderer as the dashboard, from the browser's actual origin. It tests unsaved provider/key changes without persisting them. Authorize the origin shown in Admin; a server request cannot verify browser domain restrictions. Preview reports loaded tiles, partial failures, or fallback. Provider attribution is visible at desktop/mobile sizes; Mapbox also includes its official logo and feedback link. MapTiler/Mapbox use 512px raster tiles with the matching zoom offset. No additional map SDK is required.
+
+After repeated tile failures or a 15-second load timeout, Weather temporarily falls back to OSM and changes attribution to match. The configured provider is retried after one minute, with backoff up to five minutes. Fallback never rewrites the saved selection. If both providers fail, the map is marked unavailable. RainViewer remains independent. Normal weather polling does not reload unchanged base tiles; saved provider changes reach open displays on the next poll.
 
 ### Base-map troubleshooting
 

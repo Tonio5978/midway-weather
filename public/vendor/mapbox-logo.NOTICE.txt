@@ -1,0 +1,5 @@
+Mapbox logo reproduced for required attribution when displaying Mapbox maps.
+Source: https://api.mapbox.com/mapbox-gl-js/v3.16.0/mapbox-gl.css
+Attribution requirements: https://docs.mapbox.com/help/dive-deeper/attribution/
+Mapbox and the Mapbox logo are trademarks of Mapbox.
+This logo is not covered by the application MIT license.
