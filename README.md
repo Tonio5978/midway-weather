@@ -187,6 +187,14 @@ Midway Weather is actively developed and used as a household weather display. It
 
 Feedback from weather-station owners and household-dashboard builders is welcome through [GitHub issues](https://github.com/thenumber3/midway-weather/issues).
 
+## Support the project
+
+Midway Weather is part of Midway Ecosystem, a collection of applications built for our home and shared with the community.
+
+If you find the project useful and want to support its continued development, you can [buy me a coffee](https://buymeacoffee.com/thenumber3).
+
+Contributions are completely optional. Midway Weather remains free and open source.
+
 ## Contributing and license
 
 Bug reports, feature suggestions, and focused pull requests are welcome. See [CONTRIBUTING.md](CONTRIBUTING.md) and the [roadmap](docs/roadmap.md).
