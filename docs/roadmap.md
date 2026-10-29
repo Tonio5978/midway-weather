@@ -1,10 +1,11 @@
 # Roadmap
 
-This page separates implemented features from possible future work, based on the repository as of October 22, 2026. The earlier V1/V2/V3 labels were an idea list, not release milestones. No dates or delivery commitments are implied below.
+This page separates implemented features from possible future work, based on the repository as of October 29, 2026. The earlier V1/V2/V3 labels were an idea list, not release milestones. No dates or delivery commitments are implied below.
 
 ## Implemented
 
-- Ambient Weather collection for one station per installation, with normalized observations and source freshness/failure tracking.
+- Ambient Weather collection and discovery for multiple enabled stations, one primary weather projection, station-scoped history, and source freshness/failure tracking.
+- Explicit configurable sensor tiles for verified Ambient channels, with °F/°C temperature conversion, labels, timestamps, freshness, and available recent measurement history.
 - SQLite observation history, daily summaries, configurable detailed-data retention, and recent trend/sparkline presentation.
 - Open-Meteo daily forecasts, normally seven days.
 - Leaflet basemap (keyless OpenStreetMap default, optional Stadia Maps) and optional RainViewer latest-frame radar. Radar is implemented; animation and public map pan/zoom are not.
@@ -17,17 +18,19 @@ This page separates implemented features from possible future work, based on the
 
 See the [README](../README.md), [admin guide](admin.md), and [architecture](architecture.md) for current behavior and boundaries.
 
-## Extension placeholder
+## Privately demonstrated, not shipped publicly
 
-**Pool Temperature:** a registered, inactive-by-default tile explicitly awaiting a sensor integration. It has no live source and does not invent a reading. The registry is an extension point, not evidence of an implemented integration.
+**Third-Party Environmental Sensor Integration:** the private deployment has demonstrated live pool water temperature from a Govee H5109/H5042 setup, with scheduled cloud collection, timestamped history, conversion, freshness, and a configurable Pool Temperature tile. The connector is not included in this repository.
+
+The public Pool Temperature slot can already bind a suitable verified Ambient channel; an unbound slot has no live reading. Further indoor, pool, soil, and other environmental integrations are expansion opportunities. Govee, Ecowitt, Home Assistant, MQTT, and additional Ambient sensors are candidate directions, not blanket provider or model support. See [environmental sensors](environmental-sensors.md) for the distinctions.
 
 ## Ideas, not implemented
 
 | Idea | Current boundary |
 | --- | --- |
 | Lightning | No lightning provider, event feed, or strike visualization |
-| Pollen and air quality | No collection services or dashboard tiles for these data |
-| Nearby stations / multiple stations | One configured station per installation; no comparison dashboard |
+| Pollen and additional air-quality sources | Verified Ambient air-quality channels can use sensor tiles; no dedicated pollen feed or additional air-quality provider connector |
+| Nearby stations / station comparisons | Multiple enabled Ambient stations and explicit measurement tiles are shipped; no dedicated nearby-station discovery or comparison dashboard |
 | Sun-position animation | No animated solar-position visualization; existing day/night styling is presentation |
 | Weather alerts | No warning feed, notifications, or severe-weather alerting service |
 | Historical records explorer | Recent trends and retained daily aggregates exist; no full date-range/history browsing UI |
@@ -37,7 +40,7 @@ See the [README](../README.md), [admin guide](admin.md), and [architecture](arch
 
 ## Known limits to consider before expanding scope
 
-- Display units are Fahrenheit, mph, inches, and inHg; there is no unit-selection UI.
+- The main weather presentation retains Fahrenheit, mph, inches, and inHg. Sensor temperature tiles support °F/°C; a general display-unit system remains future work.
 - PWA shell caching does not support a cold offline weather navigation.
 - Reducing the configured forecast horizon does not prune previously stored future forecast rows.
 - The regression script separately gates an inherited clock-dependent sparkline assertion; see [developer validation](operations.md#developer-validation).

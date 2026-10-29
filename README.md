@@ -22,6 +22,7 @@ The mobile layout stacks the same observations, radar, and forecast for a scroll
 ## What you can see
 
 - **Your own station observations.** Outdoor temperature, feels-like temperature, daily high and low, dew point, humidity, wind direction and gusts, rainfall, pressure, UV, solar radiation, indoor conditions, and battery status where your station supplies them.
+- **Configurable sensor readings.** Bind verified Ambient measurement channels to named tiles, with temperature unit conversion, observation freshness, and available recent history. See [sensor tiles and providers](docs/providers.md#explicit-sensor-tile-publication).
 - **The direction things are heading.** Recent-history sparklines and changes in temperature, humidity, wind, and pressure, backed by local observation history.
 - **The week ahead.** A seven-day Open-Meteo forecast with conditions, high/low temperatures, and precipitation probability.
 - **Weather around you.** A Leaflet map with keyless OpenStreetMap base tiles (optional Stadia, MapTiler, or Mapbox) and an optional latest-frame RainViewer radar overlay. Choose the provider and preview its setup, location, zoom, and framing in admin.
@@ -33,6 +34,16 @@ The mobile layout stacks the same observations, radar, and forecast for a scroll
 - **Useful visibility behind the scenes.** Source freshness, collection failures, scheduler heartbeat, release identity, and diagnostics in authenticated administration.
 
 Available readings depend on the station's sensors and API payload. Collection runs every minute; the browser normally refreshes from the local application once a minute. This is polling, rather than a streaming connection to the station.
+
+## Third-Party Environmental Sensor Integration
+
+Midway Weather can bring environmental measurements into the same configurable dashboard as your weather station. The public application already supports explicitly configured tiles for verified Ambient Weather measurement channels, including temperature conversion and available measurement history.
+
+A private Midway Weather deployment has also demonstrated live **pool water temperature from a Govee H5109 floating thermometer with an H5042 gateway**. That proof of concept combines scheduled cloud collection, timestamped historical samples, freshness indicators, and a configurable Pool Temperature tile.
+
+**The Govee connector is not included in this public repository.** It is a privately validated integration, not an out-of-the-box provider option. Further indoor, pool, soil, and other environmental sensors are an expansion direction; Govee, Ecowitt, Home Assistant, MQTT, and additional Ambient sensors are possibilities, not a compatibility list or release commitment.
+
+Read [environmental sensors: shipped features, private validation, and future options](docs/environmental-sensors.md) for the boundaries.
 
 ## Make it yours
 
@@ -146,7 +157,7 @@ The scheduler collects observations every minute, forecasts hourly, and aggregat
 
 Open `/admin` and sign in with your configured administrator email and password. There is no default password or public registration. Local setup uses `MIDWAY_WEATHER_ADMIN_EMAIL` and `MIDWAY_WEATHER_ADMIN_PASSWORD_HASH`; [the setup guide](docs/configuration.md#administrator-setup) explains generating a hash without placing your password in shell history.
 
-Administration manages tiles and previews, quips, seasonal schedules, location and radar, display padding and clock, weather thresholds, source health, and diagnostics. Saves use revision checks to avoid overwriting another administrator's changes. Provider credentials remain deployment configuration, rather than editable browser fields. See the [admin guide](docs/admin.md).
+Administration manages tiles and previews, quips, seasonal schedules, location and radar, display padding and clock, weather thresholds, source health, and diagnostics. Saves use revision checks to avoid overwriting another administrator's changes. Provider connections can use deployment configuration or encrypted Admin overrides; credentials are not returned in display data. See the [admin guide](docs/admin.md).
 
 ### Production hosting
 
@@ -167,6 +178,7 @@ Use the [external upgrade guide](docs/installation/upgrading.md) to back up and 
 | [Setup and configuration](docs/configuration.md) | Providers, SQLite, admin setup, maps, settings precedence |
 | [Administration](docs/admin.md) | Layout previews, quips, themes, sources, diagnostics |
 | [Architecture](docs/architecture.md) | Collection lifecycle, storage, API boundaries |
+| [Environmental sensors](docs/environmental-sensors.md) | Public sensor tiles, private Govee proof of concept, future providers |
 | [Operations](docs/operations.md) | Scheduling, retention, backups, troubleshooting, tests |
 | [PWA behavior](docs/pwa.md) | Installation, shell caching, network requirements |
 | [Weather API contracts](docs/contracts/weather-v2.md) | Canonical summary and compatibility contracts |
@@ -178,9 +190,9 @@ See the [documentation index](docs/README.md) for the roadmap, provider referenc
 
 Midway Weather is actively developed and used as a household weather display. It is an independent project, unaffiliated with Ambient Weather.
 
-- The data model is **one station per installation**, with Fahrenheit, mph, inches, and inHg presentation. There is no unit-selection UI or multi-station dashboard.
+- Ambient collection supports multiple enabled stations with one primary weather projection. Explicit sensor tiles can select verified channels and display temperatures in °F or °C; the main weather presentation retains its existing units. There is no dedicated station-comparison dashboard.
 - Radar shows a periodically refreshed **single frame**, without animation or public pan/zoom controls. Provider availability and usage terms apply; browsers contact map/radar providers directly.
-- Pool Temperature is an extension placeholder awaiting a sensor integration, not a connected feature.
+- Pool Temperature is inactive until explicitly bound to a verified temperature channel. Public Ambient-backed tiles are shipped; the demonstrated Govee pool connector remains private.
 - The dashboard and read APIs are public; administration requires authentication. Put the app behind an appropriate access boundary if you need private weather data.
 - PWA installation provides a convenient app shell, not full offline weather. This is not a severe-weather alerting service.
 - Retention defaults to ten days of detailed observations; daily summaries persist. The UI emphasizes recent trends rather than a full historical explorer.
