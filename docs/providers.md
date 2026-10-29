@@ -44,3 +44,7 @@ Temperature supports °F and °C, including current values and history; other qu
 Tiles show the available 24-hour min/max range and expose at most 48 timestamped samples in the display model. No continuous graph bridges collection gaps. Original-station history is reused only from retained raw packets with matching recorded station identity; station-scoped packets take precedence. Unknown, absent and out-of-range values are excluded. No historical values are invented or recovered after retention pruning. The display model gains `sensor_tiles`; versioned v1/v2 contracts remain unchanged.
 
 The migrations are additive. Take the normal private database and APP_KEY backup, run migrations, then activate code through the established release workflow. Existing layouts, themes, tile IDs and original observations/summaries remain. Roll back code without dropping the additive tables; older releases cannot configure new sensor bindings. No production activation is implied by these review branches.
+
+## Third-party environmental sensors
+
+The public connectors described above are Ambient Weather and Open-Meteo. A private deployment has demonstrated a Govee H5109/H5042 pool thermometer using the configurable tile approach, but its connector is not included here. See [Third-Party Environmental Sensor Integration](environmental-sensors.md) for shipped functionality, the private proof of concept, and possible future providers or bridges.

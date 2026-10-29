@@ -62,4 +62,4 @@ Admin writes, previews, lookup, refresh, and logout use protected POST routes wi
 - `public/display/`, `public/admin-assets/`: browser assets; no frontend compilation.
 - `routes/console.php`: schedules and heartbeat.
 
-New tiles can register supported sizes and a render partial. Newly registered tiles remain inactive in existing saved layouts. Pool Temperature demonstrates the extension slot without fabricating a sensor reading.
+New tiles can register supported sizes and a render partial. Newly registered tiles remain inactive in existing saved layouts. The Pool Temperature slot can be explicitly bound to a verified Ambient temperature channel; unbound tiles never fabricate a reading. A privately validated Govee pool integration demonstrates a further extension direction, but its connector and generic sensor-sample storage are not part of this public repository. See [environmental sensor integration](environmental-sensors.md).
